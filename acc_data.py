@@ -46,10 +46,10 @@ def filter_area_center_data(data, states=None, area_centers=None, start_date=Non
     return filtered_data
 
 
-def get_top_ten_area_centers(data):
+def get_area_centers_data(data):
     """
-    Return a dataframe with a list of top ten area centers with higher
-    levels of traffic
+    Return a dataframe with a list of area centers corresponding
+    flight levels
     """
     area_center_flight_data = pd.pivot_table(
         data,
@@ -59,4 +59,4 @@ def get_top_ten_area_centers(data):
     )
     area_center_flight_data = area_center_flight_data.reset_index()
     area_center_flight_data = area_center_flight_data.sort_values(by=c.FLIGHTS, ascending=False)
-    return area_center_flight_data.head(10)
+    return area_center_flight_data

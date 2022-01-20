@@ -204,38 +204,22 @@ state_traffic_tab = dcc.Tab(
                     xs=12, md=12, lg=12, xl=12
                 )
             ),
-            # dbc.Row(
-            #    dbc.Col(
-            #        dcc.Graph(
-            #            id='weekly_traffic_variation'
-            #        ),
-            #        xs=12, md=12, lg=12, xl=12
-            #    )
-            # )
-        ])
-    ]
-)
-
-acc_traffic_tab = dcc.Tab(
-    label='ACC Traffic',
-    id='acc_traffic_tab',
-    value='acc_traffic_tab',
-    children=[
-        dbc.Container([
-            dbc.Row([
+            dbc.Row(
                 dbc.Col(
                     dcc.Graph(
-                        id='acc_traffic_variability'
+                        id='acc_state_traffic'
                     ),
                     xs=12, md=12, lg=12, xl=12
-                ),
+                )
+            ),
+            dbc.Row(
                 dbc.Col(
                     dcc.Graph(
-                        id='top_10_acc_centers'
+                        id='state_traffic_bar_chart'
                     ),
-                    xs=12, md=12, lg=4, xl=4
+                    xs=12, md=12, lg=12, xl=12
                 )
-            ])
+            )
         ])
     ]
 )
@@ -262,7 +246,6 @@ tabs = html.Div([
   dcc.Tabs(
       children=[
         state_traffic_tab,
-        acc_traffic_tab,
         airport_traffic_tab,
         aircraft_operator_traffic_tab
       ],
@@ -348,8 +331,6 @@ def update_acc_list(list_of_states):
 )
 def select_relevant_controls(tab):
     if tab == 'state_traffic_tab':
-        return False, True, True, True
-    elif tab == 'acc_traffic_tab':
         return False, False, True, True
     elif tab == 'airport_traffic_tab':
         return False, True, False, True
@@ -392,25 +373,24 @@ def select_end_date(tab):
         max_date = None
     return start_date, max_date, end_date
 
+
 # ----- Callback for graphs ------ #
 
 @app.callback(
     Output('top_10_states', 'figure'),
-    Input('states_list', 'value'),
     Input('start_date_picker', 'date'),
     Input('end_date_picker', 'date')
 )
-def update_top_10_states_figure(list_of_states, start_date, end_date):
+def update_top_10_states_figure(start_date, end_date):
 
     filtered_data = sd.filter_states_data(
         data=states,
         start_date=start_date,
-        end_date=end_date,
-        states=list_of_states
+        end_date=end_date
     )
 
     figure_data = sd.get_top_ten_states(filtered_data)
-
+    figure_data = figure_data.sort_values(by=c.FLIGHTS, ascending=True)
     fig = go.Figure()
     fig.add_trace(
         go.Bar(
@@ -437,7 +417,7 @@ def update_states_map(start_date, end_date):
         filtered_data[c.ENTITY].ne(c.TOT_NETWORK_AREA)
     ]
 
-    figure_data = sd.get_states_flight_data(filtered_data)
+    figure_data = sd.get_states_flight_data(filtered_data, c.ISO)
 
     fig = go.Figure()
     fig.add_trace(
@@ -461,6 +441,8 @@ def update_states_map(start_date, end_date):
     
     return fig
 
+
+# TODO: redo to take area center information instead of states info.
 @app.callback(
     Output('states_traffic_variation', 'figure'),
     Input('states_list', 'value'),
@@ -478,7 +460,6 @@ def update_states_variation_graph(list_of_states, start_date, end_date):
 
     fig_data = u.get_traffic_variations(filtered_data)
     
-
     fig = go.Figure()
     fig.add_trace(
         go.Scatter(
@@ -511,7 +492,7 @@ def update_states_variation_graph(list_of_states, start_date, end_date):
 
 
 @app.callback(
-    Output('acc_traffic_variability', 'figure'),
+    Output('acc_state_traffic', 'figure'),
     Input('states_list', 'value'),
     Input('acc_list', 'value'),
     Input('start_date_picker', 'date'),
@@ -527,8 +508,51 @@ def update_acc_per_state_figure(list_of_states, acc_centers, start_date, end_dat
         end_date=end_date
     )
 
-    return u.get_traffic_variability_chart(filtered_data)
+    figure_data = ad.get_area_centers_data(filtered_data)
 
+    fig = go.Figure()
+
+    fig.add_trace(
+        go.Bar(
+            y=figure_data[c.FLIGHTS],
+            x=figure_data[c.ACC]
+        )
+    )
+
+    return fig
+
+
+@app.callback(
+    Output('state_traffic_bar_chart', 'figure'),
+    Input('states_list', 'value'),
+    Input('start_date_picker', 'date'),
+    Input('end_date_picker', 'date')
+)
+def update_state_traffic_bar_figure(list_of_states, start_date, end_date):
+    
+    filtered_data = sd.filter_states_data(
+        data=states,
+        states=list_of_states,
+        start_date=start_date,
+        end_date=end_date
+    )
+    filtered_data = filtered_data[
+        filtered_data[c.ENTITY].ne(c.TOT_NETWORK_AREA)
+    ]
+
+    figure_data = sd.get_states_flight_data(filtered_data, c.ENTITY)
+    figure_data = figure_data.sort_values(by=c.FLIGHTS, ascending=False)
+
+    fig = go.Figure()
+
+    fig.add_trace(
+        go.Bar(
+            y=figure_data[c.FLIGHTS],
+            x=figure_data[c.ENTITY]
+        )
+    )
+
+    return fig
 
 """
 @app.callback(

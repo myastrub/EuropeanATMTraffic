@@ -86,15 +86,15 @@ def filter_states_data(data, start_date=None, end_date=None, states=None):
 
 
 
-def get_states_flight_data(data):
+def get_states_flight_data(data, index):
     """
-    Returns a dataframe suitable to use for map choropleth chart
+    Returns a dataframe suitable to use for map choropleth chart or bar chart
     Groups data by country and calculates daily average number of flights
     """
     pivot = pd.pivot_table(
         data,
         values=c.FLIGHTS,
-        index=c.ISO,
+        index=index,
         aggfunc=np.mean
     )
     pivot = pivot.reset_index()
