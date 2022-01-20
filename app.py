@@ -107,9 +107,6 @@ sidebar = html.Div(
                     dbc.Col(
                         dcc.Dropdown(
                             id='acc_list',
-                            options=[
-                                {'label': x, 'value': x} for x in u.get_unique_values(area_centers, c.ACC)
-                            ],
                             multi=True,
                             clearable=True,
                             placeholder='Select ACCs',
@@ -228,7 +225,7 @@ acc_traffic_tab = dcc.Tab(
             dbc.Row([
                 dbc.Col(
                     dcc.Graph(
-                        id='acc_per_state'
+                        id='acc_traffic_variability'
                     ),
                     xs=12, md=12, lg=12, xl=12
                 ),
@@ -324,6 +321,8 @@ def toggle_collapse(n, is_open):
     return is_open
 
 
+# TODO: callback on list of states when the data for airport is ready
+
 @app.callback(
     Output('acc_list', 'options'),
     Input('states_list', 'value')
@@ -409,6 +408,7 @@ def update_top_10_states_figure(list_of_states, start_date, end_date):
         end_date=end_date,
         states=list_of_states
     )
+
     figure_data = sd.get_top_ten_states(filtered_data)
 
     fig = go.Figure()
@@ -508,6 +508,27 @@ def update_states_variation_graph(list_of_states, start_date, end_date):
         )
     )
     return fig
+
+
+@app.callback(
+    Output('acc_traffic_variability', 'figure'),
+    Input('states_list', 'value'),
+    Input('acc_list', 'value'),
+    Input('start_date_picker', 'date'),
+    Input('end_date_picker', 'date')
+)
+def update_acc_per_state_figure(list_of_states, acc_centers, start_date, end_date):
+    
+    filtered_data = ad.filter_area_center_data(
+        data=area_centers,
+        states=list_of_states,
+        area_centers=acc_centers,
+        start_date=start_date,
+        end_date=end_date
+    )
+
+    return u.get_traffic_variability_chart(filtered_data)
+
 
 """
 @app.callback(

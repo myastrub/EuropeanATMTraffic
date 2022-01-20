@@ -58,8 +58,5 @@ def get_top_ten_area_centers(data):
         aggfunc=np.mean
     )
     area_center_flight_data = area_center_flight_data.reset_index()
-    area_center_flight_data = area_center_flight_data[
-        area_center_flight_data[c.ENTITY].ne(c.TOT_NETWORK_AREA)
-    ]
     area_center_flight_data = area_center_flight_data.sort_values(by=c.FLIGHTS, ascending=False)
     return area_center_flight_data.head(10)

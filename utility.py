@@ -2,6 +2,7 @@ import pandas as pd
 import numpy as np
 import constants as c
 from datetime import timedelta
+import plotly.graph_objects as go
 
 
 def get_unique_values(data, field):
@@ -60,3 +61,40 @@ def get_traffic_variations(data):
     traffic_variations = traffic_variations.reset_index()
     traffic_variations[c.MA_2019] = traffic_variations[c.FLIGHTS_2019].rolling(7, min_periods=1).mean()
     return traffic_variations
+
+
+def get_traffic_variability_chart(data):
+    """
+    Return a traffic variability chart (2019 vs now) based on parsed data
+    """
+    fig_data = get_traffic_variations(data)
+    
+    fig = go.Figure()
+    fig.add_trace(
+        go.Scatter(
+            x=fig_data[c.DATE],
+            y=fig_data[c.MA],
+            mode='lines+markers',
+            name='Flights (Moving Average)'
+        )
+    )
+
+    fig.add_trace(
+        go.Scatter(
+            x=fig_data[c.DATE],
+            y=fig_data[c.MA_2019],
+            mode='lines+markers',
+            name='Flights 2019 (Moving Average)'
+        )
+    )
+
+    fig.update_layout(
+        legend=dict(
+            orientation='h',
+            yanchor="bottom",
+            y=1.02,
+            xanchor="right",
+            x=1
+        )
+    )
+    return fig
