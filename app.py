@@ -6,6 +6,7 @@ from dash import html, dcc
 from dash.dependencies import Input, Output, State
 import plotly.graph_objects as go
 import states_data as sd
+import acc_data as ad
 import utility as u
 from states_data import states
 from acc_data import area_centers
@@ -321,6 +322,22 @@ def toggle_collapse(n, is_open):
     if n:
         return not is_open
     return is_open
+
+
+@app.callback(
+    Output('acc_list', 'options'),
+    Input('states_list', 'value')
+)
+def update_acc_list(list_of_states):
+    if list_of_states:
+        filtered_data = ad.filter_area_center_data(
+            data=area_centers,
+            states=list_of_states
+        )
+        return [{'label': x, 'value': x} for x in u.get_unique_values(filtered_data, c.ACC)]
+    else:
+        return [{'label': x, 'value': x} for x in u.get_unique_values(area_centers, c.ACC)]
+
 
 
 @app.callback(
