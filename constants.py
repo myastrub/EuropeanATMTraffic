@@ -1,6 +1,7 @@
 DAY = 'Day'
 ENTITY = 'Entity'
 FLIGHTS = 'Flights'
+ACC = 'ACC Center'
 
 TOT_NETWORK_AREA = '-Total Network Manager Area'
 DATE_2019 = 'Day 2019'

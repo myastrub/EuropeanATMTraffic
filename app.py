@@ -8,6 +8,7 @@ import plotly.graph_objects as go
 import states_data as sd
 import utility as u
 from states_data import states
+from acc_data import area_centers
 import json
 
 app = dash.Dash(
@@ -92,7 +93,7 @@ sidebar = html.Div(
                         dcc.Dropdown(
                             id='states_list',
                             options=[
-                                {'label': x, 'value': x} for x in sd.get_list_of_states(states)
+                                {'label': x, 'value': x} for x in u.get_unique_values(states, c.ENTITY)
                             ],
                             multi=True,
                             clearable=True,
@@ -106,7 +107,7 @@ sidebar = html.Div(
                         dcc.Dropdown(
                             id='acc_list',
                             options=[
-                                {'label': x, 'value': x} for x in ['LVIV ACC', 'ODESSA ACC', 'BRUSSELS ACC']
+                                {'label': x, 'value': x} for x in u.get_unique_values(area_centers, c.ACC)
                             ],
                             multi=True,
                             clearable=True,
@@ -458,7 +459,7 @@ def update_states_variation_graph(list_of_states, start_date, end_date):
         states=list_of_states
     )
 
-    fig_data = sd.get_traffic_variations(filtered_data)
+    fig_data = u.get_traffic_variations(filtered_data)
     
 
     fig = go.Figure()

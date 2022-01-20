@@ -86,13 +86,6 @@ def filter_states_data(data, start_date=None, end_date=None, states=None):
 
 
 
-def get_list_of_states(data):
-    """
-    Returns a list of states from the dataset
-    """
-    return list(data[c.ENTITY].unique())
-
-
 def get_states_flight_data(data):
     """
     Returns a dataframe suitable to use for map choropleth chart

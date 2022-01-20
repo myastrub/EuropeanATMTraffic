@@ -3,6 +3,14 @@ import numpy as np
 import constants as c
 from datetime import timedelta
 
+
+def get_unique_values(data, field):
+    """
+    Returns a list of unique values of a field from the dataset
+    """
+    return list(data[field].unique())
+
+
 def get_date(data, func):
     """
     Returns first (min) or last (max) date from a dataset
@@ -39,3 +47,16 @@ def filter_dataset_by_date(data, start_date, end_date):
         data[c.DATE].le(ending_date)
     ]
     return filtered_dataset
+
+
+def get_traffic_variations(data):
+    
+    traffic_variations = pd.pivot_table(
+        data,
+        values=[c.MA, c.FLIGHTS, c.FLIGHTS_2019, c.FLIGHTS_2020],
+        index=c.DATE,
+        aggfunc=np.sum
+    )
+    traffic_variations = traffic_variations.reset_index()
+    traffic_variations[c.MA_2019] = traffic_variations[c.FLIGHTS_2019].rolling(7, min_periods=1).mean()
+    return traffic_variations
