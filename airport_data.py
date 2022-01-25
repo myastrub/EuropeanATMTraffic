@@ -2,6 +2,25 @@ import pandas as pd
 import numpy as np
 import constants as c
 from datetime import timedelta
+import json
+
+
+# NOT an option -> generate a dataframe from JSON with
+# ICAO Code, Latitude, Longitude columns and then merge 
+# two datasets
+def get_airport_latitude(row, airport_json):
+    icao_code = row[c.AIRPORT_CODE]
+    for feature in airport_json['features']:
+        properties = feature.get('properties')
+        if properties:
+            if properties.get('icao') == icao_code:
+                return properties.get('geo_point_2d')[1]
+
+
+with open('assets/osm-world-airports.geojson') as file:
+    airport_geojson = json.load(file)
+
+# print(airport_geojson['features'][0]['properties']['icao'])
 
 dataset = pd.read_csv('datasets/Airport_Traffic.csv', delimiter=';')
 dataset[c.DATE] = pd.to_datetime(dataset[c.DATE], format='%d/%m/%Y')
@@ -154,6 +173,17 @@ def get_daily_average_per_state(data, flight_columns):
     pivot = pivot.reset_index()
     pivot = pivot.sort_values(by=c.STATE_NAME)
     return pivot
+
+
+def get_daily_average_per_airport(data):
+
+    pivot = pd.pivot_table(
+        data, values=c.NM_TOTAL_FLIGHTS, index=c.AIRPORT_CODE,
+        aggfunc=np.mean
+    )
+    pivot = pivot.reset_index()
+    return pivot
+
 
 
 def get_average_per_month(data, flight_columns):

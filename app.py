@@ -5,11 +5,14 @@ import constants as c
 from dash import html, dcc
 from dash.dependencies import Input, Output, State
 import plotly.graph_objects as go
+import plotly.express as px
 import states_data as sd
 import acc_data as ad
+import airport_data as airport_data
 import utility as u
 from states_data import states
 from acc_data import area_centers
+from airport_data import dataset as airports
 import json
 
 app = dash.Dash(
@@ -25,6 +28,9 @@ app = dash.Dash(
 
 with open('assets/europe.geojson') as file:
     countries = json.load(file)
+
+with open('assets/osm-world-airports.geojson') as file:
+    airport_geojson = json.load(file)
 
 app.title = 'European Air Traffic Dashboard'
 server = app.server
@@ -206,7 +212,7 @@ state_traffic_tab = dcc.Tab(
                 dbc.Col(
                     html.Div([
                         html.H5(
-                            "Daily Traffic Variation",
+                            "State Daily Traffic Variation",
                             className='section_title'
                         ),
                         dcc.Graph(id='states_traffic_variation')
@@ -244,7 +250,19 @@ airport_traffic_tab = dcc.Tab(
     id='airport_traffic_tab',
     value='airport_traffic_tab',
     children=[
-        html.P("Airport Traffic")
+        dbc.Container([
+            dbc.Row([
+                dbc.Col(
+                    html.Div([
+                        html.H5(
+                            "Overview of daily flights per airport",
+                            className='section_title'
+                            ),
+                        dcc.Graph(id='airport_map')
+                    ])
+                )
+            ])
+        ])
     ]
 )
 
@@ -469,7 +487,6 @@ def update_states_map(start_date, end_date):
     return fig
 
 
-# TODO: redo to take area center information instead of states info.
 @app.callback(
     Output('states_traffic_variation', 'figure'),
     Input('states_list', 'value'),
@@ -477,14 +494,14 @@ def update_states_map(start_date, end_date):
     Input('end_date_picker', 'date')
 )
 def update_states_variation_graph(list_of_states, start_date, end_date):
-
+    
     filtered_data = sd.filter_states_traffic_variability(
         data=states,
         start_date=start_date,
         end_date=end_date,
         states=list_of_states
     )
-
+    
     fig_data = u.get_traffic_variations(filtered_data)
     
     fig = go.Figure()
@@ -585,6 +602,35 @@ def update_state_traffic_bar_figure(list_of_states, start_date, end_date):
     fig.update_layout(
         margin={"r": 10, "t": 20, "l": 10, "b": 10}
     )
+    return fig
+
+@app.callback(
+    Output('airport_map', 'figure'),
+    Input('states_list', 'value'),
+    Input('airport_list', 'value'),
+    Input('start_date_picker', 'date'),
+    Input('end_date_picker', 'date')
+)
+def update_airport_map(list_of_states, list_of_airports, start_date, end_date):
+
+    filtered_data = airport_data.filter_dataset(
+        data=airports,
+        airports=list_of_airports,
+        states=list_of_states,
+        start_date=start_date,
+        end_date=end_date
+    )
+    
+    fig_data = airport_data.get_daily_average_per_airport(filtered_data)
+
+    fig = go.Figure()
+    fig.add_trace(
+        go.Scattergeo(
+            
+        )
+    )
+    
+
     return fig
 
 """
