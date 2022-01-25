@@ -184,16 +184,20 @@ state_traffic_tab = dcc.Tab(
         dbc.Container([
             dbc.Row([
                 dbc.Col(
-                    dcc.Graph(
-                        id='states_map'
+                  html.Div([
+                    html.H5(
+                      "Overview of average daily traffic per state"
                     ),
-                    xs=12, md=12, lg=8, xl=8
+                    dcc.Graph(id='states_map')
+                  ]),xs=12, md=12, lg=8, xl=8
                 ),
                 dbc.Col(
-                    dcc.Graph(
-                        id='top_10_states'
+                  html.Div([
+                    html.H5(
+                      "Top 10 States by average daily traffic"
                     ),
-                    xs=12, md=12, lg=4, xl=4
+                    dcc.Graph(id='top_10_states')
+                  ]),xs=12, md=12, lg=4, xl=4
                 )
             ]),
             dbc.Row(
@@ -409,8 +413,7 @@ def update_top_10_states_figure(start_date, end_date):
     )
 
     fig.update_layout(
-      margin={"r": 10, "t": 50, "l": 10, "b": 10},
-      title_text="Top 10 States by average daily traffic"
+      margin={"r": 10, "t": 50, "l": 10, "b": 10}
     )
     
     return fig
@@ -449,7 +452,7 @@ def update_states_map(start_date, end_date):
         visible=False
     )
     fig.update_layout(
-        margin={"r": 0, "t": 10, "l": 0, "b": 10}
+        margin={"r": 10, "t": 50, "l": 10, "b": 10}
     )
     
     return fig
