@@ -396,10 +396,23 @@ def update_top_10_states_figure(start_date, end_date):
         go.Bar(
             x=figure_data[c.FLIGHTS],
             y=figure_data[c.ENTITY],
-            orientation='h'        
+            orientation='h',
+            textposition = "inside",
+            # texttemplate = "%{y} - %{x:.1f}"
+            texttemplate = "%{y}"
         )
     )
 
+    fig.update_yaxes(
+      visible=False,
+      showticklabels=False
+    )
+
+    fig.update_layout(
+      margin={"r": 10, "t": 50, "l": 10, "b": 10},
+      title_text="Top 10 States by average daily traffic"
+    )
+    
     return fig
 
 @app.callback(
@@ -595,4 +608,5 @@ def update_weekly_variations_figure(list_of_states, start_date, end_date):
 """
 
 if __name__ == '__main__':
-    app.run_server(debug=True)
+    # app.run_server(debug=True)
+    app.run_server(debug=True, host='0.0.0.0')

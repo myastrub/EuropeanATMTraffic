@@ -6,3 +6,5 @@ share/
 pyvenv.cfg
 ._*
 __pycache__/
+poetry.lock
+pyproject.toml
