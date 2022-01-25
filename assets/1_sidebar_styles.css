@@ -4,12 +4,16 @@
     background-color: #f8f9fa;
   }
   
-  #sidebar h2 {
-    text-align: center;
-    margin-bottom: 0;
-    margin-left: 20%;
-  }
+#sidebar h2 {
+  text-align: center;
+  margin-bottom: 0;
+  margin-left: 20%;
+}
   
+.section_title {
+  text-align: center;
+}
+
   /* Hide the blurb on a small screen */
   #blurb {
     display: none;
@@ -135,4 +139,10 @@
       margin-right: 2rem;
       transition: margin-left 0.3s ease-in-out;
     }
+
+    .section_title {
+      text-align: center;
+      margin-bottom: 0;
+      margin-top: 2%;
+  }
   }

@@ -186,7 +186,8 @@ state_traffic_tab = dcc.Tab(
                 dbc.Col(
                   html.Div([
                     html.H5(
-                      "Overview of average daily traffic per state"
+                      "Overview of average daily traffic per state",
+                      className='section_title'
                     ),
                     dcc.Graph(id='states_map')
                   ]),xs=12, md=12, lg=8, xl=8
@@ -194,7 +195,8 @@ state_traffic_tab = dcc.Tab(
                 dbc.Col(
                   html.Div([
                     html.H5(
-                      "Top 10 States by average daily traffic"
+                      "Top 10 States by average daily traffic",
+                      className='section_title'
                     ),
                     dcc.Graph(id='top_10_states')
                   ]),xs=12, md=12, lg=4, xl=4
@@ -202,26 +204,35 @@ state_traffic_tab = dcc.Tab(
             ]),
             dbc.Row(
                 dbc.Col(
-                    dcc.Graph(
-                        id='states_traffic_variation'
-                    ),
-                    xs=12, md=12, lg=12, xl=12
+                    html.Div([
+                        html.H5(
+                            "Daily Traffic Variation",
+                            className='section_title'
+                        ),
+                        dcc.Graph(id='states_traffic_variation')
+                    ]),xs=12, md=12, lg=12, xl=12
                 )
             ),
             dbc.Row(
                 dbc.Col(
-                    dcc.Graph(
-                        id='acc_state_traffic'
-                    ),
-                    xs=12, md=12, lg=12, xl=12
+                    html.Div([
+                        html.H5(
+                            "Average Daily Number of Flights per ACC",
+                            className='section_title'
+                        ),
+                        dcc.Graph(id='acc_state_traffic')
+                    ]),xs=12, md=12, lg=12, xl=12
                 )
             ),
             dbc.Row(
                 dbc.Col(
-                    dcc.Graph(
-                        id='state_traffic_bar_chart'
-                    ),
-                    xs=12, md=12, lg=12, xl=12
+                    html.Div([
+                        html.H5(
+                            "Average Daily Number of Flights per State",
+                            className='section_title'
+                        ),
+                        dcc.Graph(id='state_traffic_bar_chart')
+                    ]),xs=12, md=12, lg=12, xl=12
                 )
             )
         ])
@@ -413,7 +424,7 @@ def update_top_10_states_figure(start_date, end_date):
     )
 
     fig.update_layout(
-      margin={"r": 10, "t": 50, "l": 10, "b": 10}
+      margin={"r": 10, "t": 20, "l": 10, "b": 10}
     )
     
     return fig
@@ -452,7 +463,7 @@ def update_states_map(start_date, end_date):
         visible=False
     )
     fig.update_layout(
-        margin={"r": 10, "t": 50, "l": 10, "b": 10}
+        margin={"r": 10, "t": 20, "l": 10, "b": 10}
     )
     
     return fig
@@ -502,8 +513,10 @@ def update_states_variation_graph(list_of_states, start_date, end_date):
             y=1.02,
             xanchor="right",
             x=1
-        )
+        ),
+        margin={"r": 10, "t": 20, "l": 10, "b": 10}
     )
+
     return fig
 
 
@@ -534,7 +547,9 @@ def update_acc_per_state_figure(list_of_states, acc_centers, start_date, end_dat
             x=figure_data[c.ACC]
         )
     )
-
+    fig.update_layout(
+        margin={"r": 10, "t": 20, "l": 10, "b": 10}
+    )
     return fig
 
 
@@ -567,7 +582,9 @@ def update_state_traffic_bar_figure(list_of_states, start_date, end_date):
             x=figure_data[c.ENTITY]
         )
     )
-
+    fig.update_layout(
+        margin={"r": 10, "t": 20, "l": 10, "b": 10}
+    )
     return fig
 
 """
