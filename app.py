@@ -29,8 +29,6 @@ app = dash.Dash(
 with open('assets/europe.geojson') as file:
     countries = json.load(file)
 
-with open('assets/osm-world-airports.geojson') as file:
-    airport_geojson = json.load(file)
 
 app.title = 'European Air Traffic Dashboard'
 server = app.server
@@ -626,7 +624,12 @@ def update_airport_map(list_of_states, list_of_airports, start_date, end_date):
     fig = go.Figure()
     fig.add_trace(
         go.Scattergeo(
-            
+            lon=fig_data['LONG'],
+            lat=fig_data['LAT'],
+            text=fig_data[c.AIRPORT_CODE],
+            marker=dict(
+              color='orange'
+            )
         )
     )
     

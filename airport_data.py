@@ -170,7 +170,7 @@ def get_daily_average_per_airport(data):
       on=c.AIRPORT_CODE,
       how='left'
     )
-    # pivot = pivot.reset_index()
+    pivot = pivot.reset_index()
     return pivot
 
 
@@ -211,4 +211,3 @@ airport_coordinates = pd.read_csv('datasets/airport_coordinates.csv', delimiter=
 airport_coordinates = airport_coordinates.drop(labels=c.AIRPORT_NAME, axis=1)
 
 result = get_daily_average_per_airport(dataset)
-result.to_excel('temp_file.xlsx')
