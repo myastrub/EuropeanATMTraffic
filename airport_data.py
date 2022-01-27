@@ -3,6 +3,23 @@ import numpy as np
 import constants as c
 from datetime import timedelta
 import json
+import utility as u
+
+
+def get_flight_column(ifr_movements):
+    """
+    Based on the selected IFR movement returns a string with
+    column where the values are stored.
+    """
+    if len(ifr_movements) == 2 or len(ifr_movements) == 0:
+        return c.NM_TOTAL_FLIGHTS
+    elif ifr_movements[0] == 'Arrival':
+        return c.NM_ARR_FLIGHTS
+    elif ifr_movements[0] == 'Departure':
+        return c.NM_DEP_FLIGHTS
+    else:
+        return c.NM_TOTAL_FLIGHTS
+    
 
 def has_airport_data(data):
     """
@@ -77,21 +94,6 @@ def get_last_date(data):
         str(max(data[c.DATE].unique()) + np.timedelta64(1, 'D'))
     ).strftime('%m/%d/%Y')
 
-
-def get_flight_columns(ifr_movements):
-    """
-    Based on the selected IFR movement returns a list with
-    columns where the values are stored.
-    """
-    if len(ifr_movements) == 2 or len(ifr_movements) == 0:
-        flight_columns = [c.NM_TOTAL_FLIGHTS, c.AIRPORT_TOTAL_FLIGHTS]
-    elif ifr_movements[0] == 'Arrival':
-        flight_columns = [c.NM_ARR_FLIGHTS, c.AIRPORT_ARR_FLIGHTS]
-    elif ifr_movements[0] == 'Departure':
-        flight_columns = [c.NM_DEP_FLIGHTS, c.AIRPORT_DEP_FLIGHTS]
-    return flight_columns
-
-
 def get_number_of_flights(data, flight_columns):
     """
     Takes a dataset and flight columns (arrival, departure or total)
@@ -153,7 +155,7 @@ def get_daily_average_per_state(data, flight_columns):
     return pivot
 
 
-def get_daily_average_per_airport(data):
+def get_daily_average_per_airport(data, flight_column):
     """
     Takes a dataset and returns a dataframe with airports
     and a number of daily flights according to NM
@@ -161,7 +163,7 @@ def get_daily_average_per_airport(data):
     coordinates of airports
     """
     pivot = pd.pivot_table(
-        data, values=c.NM_TOTAL_FLIGHTS, index=[c.AIRPORT_CODE, c.AIRPORT_NAME],
+        data, values=flight_column, index=[c.AIRPORT_CODE, c.AIRPORT_NAME, c.ISO],
         aggfunc=np.mean
     )
     
@@ -171,6 +173,7 @@ def get_daily_average_per_airport(data):
       how='left'
     )
     pivot = pivot.reset_index()
+    print(pivot)
     return pivot
 
 
@@ -207,7 +210,12 @@ def get_list_of_airports(data):
 
 dataset = pd.read_csv('datasets/Airport_Traffic.csv', delimiter=';')
 dataset[c.DATE] = pd.to_datetime(dataset[c.DATE], format='%d/%m/%Y')
+dataset[c.ISO] = dataset.apply(lambda x: u.get_iso_code(x, c.STATE_NAME), axis=1)
+
+
 airport_coordinates = pd.read_csv('datasets/airport_coordinates.csv', delimiter=';')
 airport_coordinates = airport_coordinates.drop(labels=c.AIRPORT_NAME, axis=1)
-
-result = get_daily_average_per_airport(dataset)
+airport_coordinates['LAT'] = airport_coordinates['LAT'].str.replace(',', '.')
+airport_coordinates['LONG'] = airport_coordinates['LONG'].str.replace(',', '.')
+airport_coordinates['LAT'] = airport_coordinates['LAT'].astype(float)
+airport_coordinates['LONG'] = airport_coordinates['LONG'].astype(float)

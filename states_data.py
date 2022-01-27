@@ -2,22 +2,7 @@ import pandas as pd
 import numpy as np
 import constants as c
 import utility as u
-import pycountry
 import datetime
-
-def get_iso_code(row):
-    if pycountry.countries.get(name=row[c.ENTITY]):
-        return pycountry.countries.get(name=row[c.ENTITY]).alpha_3
-    elif row[c.ENTITY] == 'Bosnia-Herzegovina':
-        return 'BIH'
-    elif row[c.ENTITY] == 'Czech Republic':
-        return 'CZE'
-    elif row[c.ENTITY] == 'Moldova':
-        return 'MDA'
-    elif row[c.ENTITY] == 'Serbia & Montenegro':
-        return 'SRB'
-    else:
-        return 'N/A'
 
 def get_season(row):
     if row[c.WEEK] in range(10, 22):
@@ -45,7 +30,7 @@ states = states.rename(
     }
 )
 
-states[c.ISO] = states.apply(lambda x: get_iso_code(x), axis=1)
+states[c.ISO] = states.apply(lambda x: u.get_iso_code(x, c.ENTITY), axis=1)
 
 
 def filter_states_traffic_variability(data, start_date=None, end_date=None, states=None):

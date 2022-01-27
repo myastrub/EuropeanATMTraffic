@@ -172,6 +172,26 @@ sidebar = html.Div(
                     style=c.FILTER_ITEM_ROW,
                     align='center'
                 ),
+                dbc.Row(
+                    dbc.Col(
+                        html.H6("Airport traffic type"),
+                    ),
+                    style=c.FILTER_ITEM_ROW,
+                    align='left'
+                ),
+                dbc.Row([
+                    dbc.Col(
+                        dbc.Checklist(
+                            options=[{'label': x, 'value': x} for x in ['Arrival', 'Departure']],
+                            id='ifr_movements',
+                            value=[x for x in ['Arrival', 'Departure']],
+                            switch=True,
+                            inline=True
+                        )
+                    )],
+                    style=c.FILTER_ITEM_ROW,
+                    align='center'
+                )
             ]),
             id="collapse"
         ),
@@ -336,6 +356,21 @@ def toggle_collapse(n, is_open):
 
 
 # TODO: callback on list of states when the data for airport is ready
+@app.callback(
+    Output('airport_list', 'options'),
+    Input('states_list', 'value'),
+)
+def update_airport_list(list_of_states):
+    if list_of_states:
+        filtered_data = airport_data.filter_dataset(
+            data=airports,
+            states=list_of_states
+        )
+        return [{'label': x, 'value': x} for x in u.get_unique_values(filtered_data, c.AIRPORT_NAME)]
+    else:
+        return [{'label': x, 'value': x} for x in u.get_unique_values(airports, c.AIRPORT_NAME)]
+
+
 
 @app.callback(
     Output('acc_list', 'options'),
@@ -351,6 +386,36 @@ def update_acc_list(list_of_states):
     else:
         return [{'label': x, 'value': x} for x in u.get_unique_values(area_centers, c.ACC)]
 
+
+
+@app.callback(
+    Output('ifr_movements', 'options'),
+    Output('ifr_movements', 'value'),
+    Input('content_tabs', 'value')
+)
+def update_airport_traffic_checklist(tab):
+    
+    if tab == 'airport_traffic_tab':
+        disabled = False
+    else:
+        disabled = True
+    
+    options = [
+        {
+            'label': 'Arrival',
+            'value': 'Arrival',
+            'disabled': disabled
+        },
+        {
+            'label': 'Departure',
+            'value': 'Departure',
+            'disabled': disabled
+        },
+    ]
+
+    values = [x for x in ['Arrival', 'Departure']]
+
+    return options, values
 
 
 @app.callback(
@@ -381,6 +446,9 @@ def select_start_date(tab):
     if tab == 'state_traffic_tab':
         start_date = u.get_date(states, min)
         max_date = u.get_last_date(states)
+    elif tab == 'airport_traffic_tab':
+        start_date = u.get_date(airports, min)
+        max_date = u.get_last_date(airports)
     else:
         start_date = None
         max_date = None
@@ -398,6 +466,10 @@ def select_end_date(tab):
         start_date = u.get_date(states, min)
         end_date = u.get_date(states, max)
         max_date = u.get_last_date(states)
+    elif tab == 'airport_traffic_tab':
+        start_date = u.get_date(airports, min)
+        end_date = u.get_date(airports, max)
+        max_date = u.get_last_date(airports)
     else:
         start_date = None
         end_date = None
@@ -607,9 +679,10 @@ def update_state_traffic_bar_figure(list_of_states, start_date, end_date):
     Input('states_list', 'value'),
     Input('airport_list', 'value'),
     Input('start_date_picker', 'date'),
-    Input('end_date_picker', 'date')
+    Input('end_date_picker', 'date'),
+    Input('ifr_movements', 'value')
 )
-def update_airport_map(list_of_states, list_of_airports, start_date, end_date):
+def update_airport_map(list_of_states, list_of_airports, start_date, end_date, ifr):
 
     filtered_data = airport_data.filter_dataset(
         data=airports,
@@ -619,21 +692,60 @@ def update_airport_map(list_of_states, list_of_airports, start_date, end_date):
         end_date=end_date
     )
     
-    fig_data = airport_data.get_daily_average_per_airport(filtered_data)
+    flight_column = airport_data.get_flight_column(ifr)
 
-    fig = go.Figure()
+    fig_data = airport_data.get_daily_average_per_airport(filtered_data, flight_column)
+    unfiltered_data = airport_data.get_daily_average_per_airport(airports, flight_column)
+    
+    traces = [
+        go.Choropleth(
+            geojson=countries,
+            locations=unfiltered_data[c.ISO],
+            featureidkey="properties.ISO3",
+            z=unfiltered_data[flight_column]*0,
+            hoverinfo='skip',
+            showscale=False
+            # hovertemplate='<extra></extra>'
+        ),
+        go.Scattergeo(
+            lon=fig_data['LONG'],
+            lat=fig_data['LAT'],
+            text=fig_data[c.AIRPORT_NAME],
+            customdata=fig_data[flight_column],
+            marker=dict(
+              color='orange',
+              size=fig_data[flight_column] / 30
+            ),
+            hovertemplate='%{text} - %{customdata:.1f} flights<extra></extra>'
+        )
+    ]
+    fig = go.Figure(data=traces)
+
+    fig.update_geos(
+        fitbounds="locations", 
+        visible=False
+    )
+
+
+    fig.update_layout(
+        margin={"r": 10, "t": 20, "l": 10, "b": 10},
+    )
+    """
     fig.add_trace(
         go.Scattergeo(
             lon=fig_data['LONG'],
             lat=fig_data['LAT'],
             text=fig_data[c.AIRPORT_CODE],
             marker=dict(
-              color='orange'
+              color='orange',
+              size=fig_data[c.NM_TOTAL_FLIGHTS] / 50
             )
         )
     )
     
 
+    
+    """
     return fig
 
 """

@@ -3,7 +3,24 @@ import numpy as np
 import constants as c
 from datetime import timedelta
 import plotly.graph_objects as go
+import pycountry
 
+
+def get_iso_code(row, field):
+    if pycountry.countries.get(name=row[field]):
+        return pycountry.countries.get(name=row[field]).alpha_3
+    elif row[field] == 'Bosnia-Herzegovina':
+        return 'BIH'
+    elif row[field] == 'Czech Republic':
+        return 'CZE'
+    elif row[field] == 'Moldova':
+        return 'MDA'
+    elif row[field] == 'Serbia & Montenegro':
+        return 'SRB'
+    elif row[field] == 'Republic of North Macedonia':
+        return 'MKD'
+    else:
+        return 'N/A'
 
 def get_unique_values(data, field):
     """
