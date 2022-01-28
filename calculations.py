@@ -89,7 +89,7 @@ def filter_dataset_by_date(data, start_date, end_date):
     return filtered_dataset
 
 
-def filter_dataset(data, airports=None, states=None, start_date=None, end_date=None):
+def filter_airport_dataset(data, airports=None, states=None, start_date=None, end_date=None):
     """
     Filters dataset based on the specified filters.
     """

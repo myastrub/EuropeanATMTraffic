@@ -380,7 +380,7 @@ def toggle_collapse(n, is_open):
 )
 def update_airport_list(list_of_states):
     if list_of_states:
-        filtered_data = calculations.filter_dataset(
+        filtered_data = calculations.filter_airport_dataset(
             data=airports,
             states=list_of_states
         )
@@ -508,7 +508,7 @@ def select_end_date(tab):
 )
 def update_aiport_traffic_variability(list_of_states, list_of_airports, start_date, end_date, ifr):
 
-    filtered_data = calculations.filter_dataset(
+    filtered_data = calculations.filter_airport_dataset(
         data=airports,
         states=list_of_states,
         airports=list_of_airports,
@@ -560,7 +560,7 @@ def update_aiport_traffic_variability(list_of_states, list_of_airports, start_da
 )
 def update_top_10_airports_figure(start_date, end_date, ifr):
 
-    filtered_data = calculations.filter_dataset(
+    filtered_data = calculations.filter_airport_dataset(
         data=airports,
         start_date=start_date,
         end_date=end_date
@@ -799,7 +799,7 @@ def update_state_traffic_bar_figure(list_of_states, start_date, end_date):
 )
 def update_airport_map(list_of_states, list_of_airports, start_date, end_date, ifr):
 
-    filtered_data = calculations.filter_dataset(
+    filtered_data = calculations.filter_airport_dataset(
         data=airports,
         airports=list_of_airports,
         states=list_of_states,
