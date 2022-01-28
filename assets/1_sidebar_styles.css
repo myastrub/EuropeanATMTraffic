@@ -65,7 +65,7 @@
       bottom: 0;
       width: 20rem;
       text-align: left;
-      transition: margin 0.3s ease-in-out, padding 0.3s ease-in-out;
+      /* transition: margin 0.3s ease-in-out, padding 0.3s ease-in-out; */
     }
   
     .DateInput_input {
@@ -88,7 +88,7 @@
       display: inline-block;
       position: relative;
       top: 0;
-      transition: top 0.3s ease-in-out;
+      /* transition: top 0.3s ease-in-out; */
     }
   
     /* add negative margin to sidebar to achieve the collapse */
@@ -137,7 +137,7 @@
     .page-content {
       margin-left: 22rem;
       margin-right: 2rem;
-      transition: margin-left 0.3s ease-in-out;
+      /* transition: margin-left 0.3s ease-in-out; */
     }
 
     .section_title {

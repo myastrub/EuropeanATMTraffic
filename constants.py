@@ -11,7 +11,8 @@ FLIGHTS_2020 = 'Flights Previous Year'
 MA = 'Flights (7-day moving average)'
 MA_2019 = 'Flights (7-day moving average) 2019'
 VARIATION_2019 = '% vs 2019 (Daily)'
-
+NM_MA = 'NM Moving Average'
+APT_MA = 'Airport Moving Average'
 
 ISO = 'ISO Code'
 
@@ -42,5 +43,5 @@ DROPDOWN_STYLE = {
 }
 
 FILTER_ITEM_ROW = {
-    'margin-top': '4%'
+    'marginTop': '4%'
 }
