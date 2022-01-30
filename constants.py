@@ -42,6 +42,21 @@ DROPDOWN_STYLE = {
     'backgroundColor': BACKGROUND_COLOR
 }
 
+BLUE = 'rgb(99,110,247)'
+RED = 'rgb(238,85,59)'
+
 FILTER_ITEM_ROW = {
     'marginTop': '4%'
+}
+
+HORIZONTAL_LEGEND = dict(
+    orientation='h',
+    yanchor="bottom",
+    y=1.02,
+    xanchor="right",
+    x=1
+)
+
+GRAPH_MARGIN = {
+    "r": 10, "t": 20, "l": 10, "b": 10
 }

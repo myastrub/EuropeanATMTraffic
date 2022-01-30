@@ -1,11 +1,44 @@
 import pandas as pd
 import numpy as np
 import constants as c
-import utility as u
-import datetime
 import pycountry
 
 # ----- Filtering functions ------- #
+
+
+def filter_dataset_by_date(data, start_date, end_date):
+    """
+    Filters dataset based on the start and end date
+    """
+    if start_date is None:
+        beginning_date = pd.to_datetime(get_date(data, min))
+    else:
+        beginning_date = pd.to_datetime(start_date)
+    if end_date is None:
+        ending_date = pd.to_datetime(get_date(data, max))
+    else:
+        ending_date = pd.to_datetime(end_date)
+
+    filtered_dataset = data[
+        data[c.DATE].ge(beginning_date) &
+        data[c.DATE].le(ending_date)
+    ]
+    return filtered_dataset
+
+
+def filter_aircraft_operators(data, start_date=None, end_date=None, operators=None):
+
+    filtered_data = filter_dataset_by_date(
+        data=data, start_date=start_date, end_date=end_date
+    )
+
+    if operators:
+        filtered_data = filtered_data[
+            filtered_data[c.ENTITY].isin(operators)
+        ]
+    
+    return filtered_data
+
 
 
 def filter_states_traffic_variability(data, start_date=None, end_date=None, states=None):
@@ -123,7 +156,7 @@ def get_states_flight_data(data, index):
     """
     pivot = pd.pivot_table(
         data,
-        values=c.FLIGHTS,
+        values=[c.FLIGHTS, c.FLIGHTS_2019],
         index=index,
         aggfunc=np.mean
     )
@@ -150,15 +183,32 @@ def get_top_ten_states(data):
     return states_flight_data.head(10)
 
 
+def get_top_ten_aircraft_operators(data):
+    """
+    Return a dataframe with a list of top ten aircraft operators with higher
+    levels of traffic
+    """
+    ao_flight_data = pd.pivot_table(
+        data,
+        values=c.FLIGHTS,
+        index=c.ENTITY,
+        aggfunc=np.mean
+    )
+    ao_flight_data = ao_flight_data.reset_index()
+    
+    ao_flight_data = ao_flight_data.sort_values(by=c.FLIGHTS, ascending=False)
+    return ao_flight_data.head(10)
 
-def get_area_centers_data(data):
+
+
+def get_area_centers_data(data, fields):
     """
     Return a dataframe with a list of area centers corresponding
     flight levels
     """
     area_center_flight_data = pd.pivot_table(
         data,
-        values=c.FLIGHTS,
+        values=fields,
         index=[c.STATE_NAME, c.ACC],
         aggfunc=np.mean
     )
@@ -356,34 +406,15 @@ def get_last_date(data):
     ).strftime('%m/%d/%Y')
 
 
-def filter_dataset_by_date(data, start_date, end_date):
-    """
-    Filters dataset based on the start and end date
-    """
-    if start_date is None:
-        beginning_date = pd.to_datetime(get_date(data, min))
-    else:
-        beginning_date = pd.to_datetime(start_date)
-    if end_date is None:
-        ending_date = pd.to_datetime(get_date(data, max))
-    else:
-        ending_date = pd.to_datetime(end_date)
-
-    filtered_dataset = data[
-        data[c.DATE].ge(beginning_date) &
-        data[c.DATE].le(ending_date)
-    ]
-    return filtered_dataset
-
 
 def get_traffic_variations(data):
-    
     traffic_variations = pd.pivot_table(
         data,
         values=[c.MA, c.FLIGHTS, c.FLIGHTS_2019, c.FLIGHTS_2020],
         index=c.DATE,
         aggfunc=np.sum
     )
+    
     traffic_variations = traffic_variations.reset_index()
     traffic_variations[c.MA_2019] = traffic_variations[c.FLIGHTS_2019].rolling(7, min_periods=1).mean()
     return traffic_variations
@@ -392,9 +423,9 @@ def get_traffic_variations(data):
 
 # ---- Upload of additional dataset to get airport coordinates ----- #
 
-airport_coordinates = pd.read_csv('datasets/airport_coordinates.csv', delimiter=';')
+airport_coordinates = pd.read_csv(
+    'datasets/airport_coordinates.csv',
+    delimiter=';',
+    decimal=','
+)
 airport_coordinates = airport_coordinates.drop(labels=c.AIRPORT_NAME, axis=1)
-airport_coordinates['LAT'] = airport_coordinates['LAT'].str.replace(',', '.')
-airport_coordinates['LONG'] = airport_coordinates['LONG'].str.replace(',', '.')
-airport_coordinates['LAT'] = airport_coordinates['LAT'].astype(float)
-airport_coordinates['LONG'] = airport_coordinates['LONG'].astype(float)
