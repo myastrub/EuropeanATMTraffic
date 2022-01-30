@@ -193,7 +193,7 @@ sidebar = html.Div(
 )
 
 state_traffic_tab = dcc.Tab(
-    label='State Traffic',
+    label='State View',
     id='state_traffic_tab',
     value='state_traffic_tab',
     children=[
@@ -202,7 +202,7 @@ state_traffic_tab = dcc.Tab(
                 dbc.Col(
                   html.Div([
                     html.H5(
-                      "Overview of average daily traffic per state",
+                      "Number of Daily Flights per State",
                       className='section_title'
                     ),
                     dcc.Graph(id='states_map')
@@ -211,7 +211,7 @@ state_traffic_tab = dcc.Tab(
                 dbc.Col(
                   html.Div([
                     html.H5(
-                      "Top 10 States by average daily traffic",
+                      "Top 10 States by Daily Flights",
                       className='section_title'
                     ),
                     dcc.Graph(id='top_10_states')
@@ -233,7 +233,7 @@ state_traffic_tab = dcc.Tab(
                 dbc.Col(
                     html.Div([
                         html.H5(
-                            "Average Daily Number of Flights per ACC",
+                            "Daily Number of Flights per ACC",
                             className='section_title'
                         ),
                         dcc.Graph(id='acc_state_traffic')
@@ -244,7 +244,7 @@ state_traffic_tab = dcc.Tab(
                 dbc.Col(
                     html.Div([
                         html.H5(
-                            "Average Daily Number of Flights per State",
+                            "Daily Number of Flights per State",
                             className='section_title'
                         ),
                         dcc.Graph(id='state_traffic_bar_chart')
@@ -256,7 +256,7 @@ state_traffic_tab = dcc.Tab(
 )
 
 airport_traffic_tab = dcc.Tab(
-    label='Airport Traffic',
+    label='Airport View',
     id='airport_traffic_tab',
     value='airport_traffic_tab',
     children=[
@@ -265,7 +265,7 @@ airport_traffic_tab = dcc.Tab(
                 dbc.Col(
                     html.Div([
                         html.H5(
-                            "Overview of daily flights per airport",
+                            "Number of Daily Flights per Airport",
                             className='section_title'
                             ),
                         dcc.Graph(id='airport_map')
@@ -275,7 +275,7 @@ airport_traffic_tab = dcc.Tab(
                 dbc.Col(
                     html.Div([
                         html.H5(
-                            "Top 10 airports by average daily traffic",
+                            "Top 10 Airports by Daily Flights",
                             className='section_title'
                         ),
                         dcc.Graph(id='top_10_airports')
@@ -322,7 +322,7 @@ airport_traffic_tab = dcc.Tab(
 )
 
 aircraft_operator_traffic_tab = dcc.Tab(
-    label='Aircraft Operator Traffic',
+    label='Aircraft Operator View',
     id='aircraft_operator_tab',
     value='aircraft_operator_tab',
     children=[
@@ -341,7 +341,7 @@ aircraft_operator_traffic_tab = dcc.Tab(
                 dbc.Col(
                     html.Div([
                       html.H5(
-                          "Top 10 aircraft operators by average daily traffic",
+                          "Top 10 Aircraft Operators by Daily Flights",
                           className='section_title'
                       ),
                       dcc.Graph(id='top_10_aircraft_operators')  
@@ -353,7 +353,7 @@ aircraft_operator_traffic_tab = dcc.Tab(
                 dbc.Col(
                     html.Div([
                         html.H5(
-                            "Average Daily Number of Flights per Aircraft Operator",
+                            "Daily Number of Flights per Aircraft Operator",
                             className='section_title'
                         ),
                         dcc.Graph(id='aircraft_operator_traffic_bar_chart')
@@ -497,8 +497,31 @@ def toggle_collapse(n, is_open):
     return is_open
 
 
+@app.callback(
+    Output('states_list', 'options'),
+    Input('content_tabs', 'value'),
+    Input('airport_list', 'value')
+)
+def update_states_list(tab, list_of_airports):
+    if tab == 'state_traffic_tab':
+        filtered_data = states[
+            states[c.ENTITY].ne(c.TOT_NETWORK_AREA)
+        ]
+        return [{'label': x, 'value': x} for x in calculations.get_unique_values(filtered_data, c.ENTITY)]
+    elif tab == 'airport_traffic_tab':
+        if list_of_airports:
+            filtered_data = calculations.filter_airport_dataset(
+                data=airports,
+                airports=list_of_airports
+            )
+            return [{'label': x, 'value': x} for x in calculations.get_unique_values(filtered_data, c.STATE_NAME)]
+        else:
+            return [{'label': x, 'value': x} for x in calculations.get_unique_values(airports, c.STATE_NAME)]
+    else:
+        return [{'label': x, 'value': x} for x in calculations.get_unique_values(states, c.ENTITY)]
 
-# TODO: callback on list of states when the data for airport is ready
+
+
 @app.callback(
     Output('airport_list', 'options'),
     Input('states_list', 'value'),
@@ -649,13 +672,13 @@ def update_aiport_traffic_variability(list_of_states, list_of_airports, start_da
     )
 
     flight_columns = calculations.get_flight_columns(ifr)
-    fig_data = calculations.get_number_of_flights(filtered_data, flight_columns)
+    figure_data = calculations.get_number_of_flights(filtered_data, flight_columns)
 
     fig = go.Figure()
     fig.add_trace(
         go.Scatter(
-            x=fig_data[c.DATE],
-            y=fig_data[c.NM_MA],
+            x=figure_data[c.DATE],
+            y=figure_data[c.NM_MA],
             mode='lines',
             name='Number of flights (recorded by NM)'
         )
@@ -663,8 +686,8 @@ def update_aiport_traffic_variability(list_of_states, list_of_airports, start_da
 
     fig.add_trace(
         go.Scatter(
-            x=fig_data[c.DATE],
-            y=fig_data[c.APT_MA],
+            x=figure_data[c.DATE],
+            y=figure_data[c.APT_MA],
             mode='lines',
             name='Number of flights (recorded by airport)'
         )
@@ -684,7 +707,7 @@ def update_aiport_traffic_variability(list_of_states, list_of_airports, start_da
     Input('end_date_picker', 'date'),
     Input('ifr_movements', 'value')
 )
-def update_top_10_airports_figure(start_date, end_date, ifr):
+def update_top_10_airports_chart(start_date, end_date, ifr):
 
     filtered_data = calculations.filter_airport_dataset(
         data=airports,
@@ -725,7 +748,7 @@ def update_top_10_airports_figure(start_date, end_date, ifr):
     Input('start_date_picker', 'date'),
     Input('end_date_picker', 'date')
 )
-def update_top_10_states_figure(start_date, end_date):
+def update_top_10_states_chart(start_date, end_date):
 
     filtered_data = calculations.filter_states_data(
         data=states,
@@ -792,7 +815,7 @@ def update_states_map(start_date, end_date):
         visible=False
     )
     fig.update_layout(
-        margin=c.GRAPH_MARGIN
+        margin={"r": 0, "t": 20, "l": 10, "b": 10}
     )
     
     return fig
@@ -804,7 +827,7 @@ def update_states_map(start_date, end_date):
     Input('start_date_picker', 'date'),
     Input('end_date_picker', 'date')
 )
-def update_states_variation_graph(list_of_states, start_date, end_date):
+def update_states_variation_chart(list_of_states, start_date, end_date):
     
     filtered_data = calculations.filter_states_traffic_variability(
         data=states,
@@ -813,13 +836,13 @@ def update_states_variation_graph(list_of_states, start_date, end_date):
         states=list_of_states
     )
     
-    fig_data = calculations.get_traffic_variations(filtered_data)
+    figure_data = calculations.get_traffic_variations(filtered_data)
     
     fig = go.Figure()
     fig.add_trace(
         go.Scatter(
-            x=fig_data[c.DATE],
-            y=fig_data[c.MA],
+            x=figure_data[c.DATE],
+            y=figure_data[c.MA],
             mode='lines+markers',
             name='Flights (Moving Average)'
         )
@@ -827,8 +850,8 @@ def update_states_variation_graph(list_of_states, start_date, end_date):
 
     fig.add_trace(
         go.Scatter(
-            x=fig_data[c.DATE],
-            y=fig_data[c.MA_2019],
+            x=figure_data[c.DATE],
+            y=figure_data[c.MA_2019],
             mode='lines+markers',
             name='Flights 2019 (Moving Average)'
         )
@@ -849,7 +872,7 @@ def update_states_variation_graph(list_of_states, start_date, end_date):
     Input('start_date_picker', 'date'),
     Input('end_date_picker', 'date')
 )
-def update_acc_per_state_figure(list_of_states, acc_centers, start_date, end_date):
+def update_acc_per_state_chart(list_of_states, acc_centers, start_date, end_date):
     
     filtered_data = calculations.filter_area_center_data(
         data=area_centers,
@@ -905,7 +928,7 @@ def update_acc_per_state_figure(list_of_states, acc_centers, start_date, end_dat
     Input('start_date_picker', 'date'),
     Input('end_date_picker', 'date')
 )
-def update_state_traffic_bar_figure(list_of_states, start_date, end_date):
+def update_state_traffic_bar_chart(list_of_states, start_date, end_date):
     
     filtered_data = calculations.filter_states_data(
         data=states,
@@ -972,9 +995,9 @@ def update_airport_map(list_of_states, list_of_airports, start_date, end_date, i
     
     flight_column = calculations.get_flight_column(ifr)
 
-    fig_data = calculations.get_daily_average_per_airport(filtered_data, flight_column)
+    figure_data = calculations.get_daily_average_per_airport(filtered_data, flight_column)
     unfiltered_data = calculations.get_daily_average_per_airport(airports, flight_column)
-    sizes = fig_data[flight_column] / 30
+    sizes = figure_data[flight_column] / 30
     traces = [
         go.Choropleth(
             geojson=countries,
@@ -986,10 +1009,10 @@ def update_airport_map(list_of_states, list_of_airports, start_date, end_date, i
             # hovertemplate='<extra></extra>'
         ),
         go.Scattergeo(
-            lon=fig_data['LONG'],
-            lat=fig_data['LAT'],
-            text=fig_data[c.AIRPORT_NAME],
-            customdata=fig_data[flight_column],
+            lon=figure_data['LONG'],
+            lat=figure_data['LAT'],
+            text=figure_data[c.AIRPORT_NAME],
+            customdata=figure_data[flight_column],
             marker=dict(
               color='orange',
               size=sizes
@@ -1007,10 +1030,55 @@ def update_airport_map(list_of_states, list_of_airports, start_date, end_date, i
     )
 
     fig.update_layout(
-        margin=c.GRAPH_MARGIN
+        margin={"r": 0, "t": 20, "l": 10, "b": 10}
     )
     
     return fig
+
+
+@app.callback(
+    Output('airport_traffic_per_year', 'figure'),
+    Input('states_list', 'value'),
+    Input('airport_list', 'value'),
+    Input('ifr_movements', 'value')
+)
+def update_traffic_per_year_chart(list_of_states, list_of_airports, ifr):
+
+    filtered_dataset = calculations.filter_airport_dataset(
+        data=airports,
+        airports=list_of_airports,
+        states=list_of_states
+    )
+
+    flight_columns = calculations.get_flight_columns(ifr)
+    figure_data = calculations.get_average_per_year(filtered_dataset, flight_columns)
+
+    fig = go.Figure()
+
+    fig.add_trace(
+        go.Bar(
+            x=figure_data[c.YEAR],
+            y=figure_data[flight_columns[0]],
+            name='Number of flights (recorded by NM)'
+        )
+    )
+
+    if calculations.has_airport_data(figure_data):
+        fig.add_trace(
+            go.Bar(
+                x=figure_data[c.YEAR],
+                y=figure_data[flight_columns[1]],
+                name='Number of flights (recorded by airport)'
+            )
+        )
+    
+    fig.update_layout(
+        legend=c.HORIZONTAL_LEGEND,
+        margin=c.GRAPH_MARGIN
+    )
+
+    return fig
+
 
 @app.callback(
     Output('seasonal_variability', 'figure'),
@@ -1020,7 +1088,7 @@ def update_airport_map(list_of_states, list_of_airports, start_date, end_date, i
     Input('end_date_picker', 'date'),
     Input('ifr_movements', 'value')
 )
-def update_seasonal_variability(list_of_airports, list_of_states, start_date, end_date, ifr):
+def update_seasonal_variability_chart(list_of_states, list_of_airports, start_date, end_date, ifr):
     filtered_dataset = calculations.filter_airport_dataset(
         data=airports,
         airports=list_of_airports,
@@ -1077,14 +1145,14 @@ def update_ao_traffic_variation_chart(list_of_operators, start_date, end_date):
         operators=list_of_operators
     )
 
-    fig_data = calculations.get_traffic_variations(filtered_data)
+    figure_data = calculations.get_traffic_variations(filtered_data)
 
     fig = go.Figure()
 
     fig.add_trace(
         go.Scatter(
-            x=fig_data[c.DATE],
-            y=fig_data[c.MA],
+            x=figure_data[c.DATE],
+            y=figure_data[c.MA],
             mode='lines+markers',
             name='Flights (Moving Average)'
         )
@@ -1092,8 +1160,8 @@ def update_ao_traffic_variation_chart(list_of_operators, start_date, end_date):
 
     fig.add_trace(
         go.Scatter(
-            x=fig_data[c.DATE],
-            y=fig_data[c.MA_2019],
+            x=figure_data[c.DATE],
+            y=figure_data[c.MA_2019],
             mode='lines+markers',
             name='Flights 2019 (Moving Average)'
         )
@@ -1120,15 +1188,15 @@ def update_top_10_ao_chart(start_date, end_date):
         end_date=end_date
     )
 
-    fig_data = calculations.get_top_ten_aircraft_operators(filtered_data)
-    fig_data = fig_data.sort_values(by=c.FLIGHTS, ascending=True)
+    figure_data = calculations.get_top_ten_aircraft_operators(filtered_data)
+    figure_data = figure_data.sort_values(by=c.FLIGHTS, ascending=True)
 
     fig = go.Figure()
 
     fig.add_trace(
         go.Bar(
-            x=fig_data[c.FLIGHTS],
-            y=fig_data[c.ENTITY],
+            x=figure_data[c.FLIGHTS],
+            y=figure_data[c.ENTITY],
             orientation='h',
             textposition = "inside",
             # texttemplate = "%{y} - %{x:.1f}"
@@ -1206,7 +1274,7 @@ def update_ao_bar_chart(list_of_operators, start_date, end_date):
     Input('start_date_picker', 'date'),
     Input('end_date_picker', 'date')
 )
-def update_marketshare_2019_figure(start_date, end_date):
+def update_marketshare_2019_chart(start_date, end_date):
 
     filtered_data = calculations.filter_aircraft_operators(
         data=aircraft_operators,
@@ -1242,7 +1310,7 @@ def update_marketshare_2019_figure(start_date, end_date):
     Input('start_date_picker', 'date'),
     Input('end_date_picker', 'date')
 )
-def update_marketshare_now_figure(start_date, end_date):
+def update_marketshare_now_chart(start_date, end_date):
 
     filtered_data = calculations.filter_aircraft_operators(
         data=aircraft_operators,

@@ -335,6 +335,20 @@ def get_daily_average_per_airport(data, flight_column):
     return pivot
 
 
+def get_average_per_year(data, flight_columns):
+    """
+    Takes a dataset and flight columns (arrival, departure or total)
+    and returns dataframe with years and a number of daily flights
+    according to NM and airport
+    """
+    pivot = pd.pivot_table(
+        data, values=flight_columns, index=[c.YEAR],
+        aggfunc=np.mean
+    )
+    pivot = pivot.sort_values(by=c.YEAR)
+    pivot=pivot.reset_index()
+    return pivot
+
 
 def get_average_per_month(data, flight_columns):
     """
@@ -385,7 +399,7 @@ def get_unique_values(data, field):
     """
     Returns a list of unique values of a field from the dataset
     """
-    return list(data[field].unique())
+    return sorted(list(data[field].unique()))
 
 
 def get_date(data, func):
