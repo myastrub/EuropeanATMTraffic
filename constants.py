@@ -34,7 +34,7 @@ AIRPORT_TOTAL_FLIGHTS = 'FLT_TOT_IFR_2'
 DAILY_AVERAGE = 'Daily Average'
 
 
-# STYLES
+# STYLES for Graphs and Dash elements
 BACKGROUND_COLOR = '#f8f9fa'
 DROPDOWN_STYLE = {
     'border': '0px',
