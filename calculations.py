@@ -27,7 +27,10 @@ def filter_dataset_by_date(data, start_date, end_date):
 
 
 def filter_aircraft_operators(data, start_date=None, end_date=None, operators=None):
-
+    """
+    Filters dataset of aircraft operators based on a list of aircraft operators
+    and start and end date of the period
+    """
     filtered_data = filter_dataset_by_date(
         data=data, start_date=start_date, end_date=end_date
     )
@@ -38,7 +41,6 @@ def filter_aircraft_operators(data, start_date=None, end_date=None, operators=No
         ]
     
     return filtered_data
-
 
 
 def filter_states_traffic_variability(data, start_date=None, end_date=None, states=None):
@@ -65,7 +67,8 @@ def filter_states_traffic_variability(data, start_date=None, end_date=None, stat
 
 def filter_states_data(data, start_date=None, end_date=None, states=None):
     """
-    Filters states data based on a set of parameters
+    Filters states dataframe based on a list of states and 
+    start and end date of the period
     """
     filtered_data = filter_dataset_by_date(
         data=data, start_date=start_date, end_date=end_date
@@ -80,7 +83,8 @@ def filter_states_data(data, start_date=None, end_date=None, states=None):
 
 def filter_area_center_data(data, states=None, area_centers=None, start_date=None, end_date=None):
     """
-    Filters acc centers data based on a set of parameters
+    Filters ACC centers dataframe data based on a list of states,
+    list of ACC centres and start and end date of the period
     """
     filtered_data = filter_dataset_by_date(
         data=data, start_date=start_date, end_date=end_date
@@ -102,29 +106,10 @@ def filter_area_center_data(data, states=None, area_centers=None, start_date=Non
     return filtered_data
 
 
-def filter_dataset_by_date(data, start_date, end_date):
-    """
-    Filters dataset based on the start and end date
-    """
-    if start_date is None:
-        beginning_date = pd.to_datetime(get_date(data, min))
-    else:
-        beginning_date = pd.to_datetime(start_date)
-    if end_date is None:
-        ending_date = pd.to_datetime(get_date(data, max))
-    else:
-        ending_date = pd.to_datetime(end_date)
-
-    filtered_dataset = data[
-        data[c.DATE].ge(beginning_date) &
-        data[c.DATE].le(ending_date)
-    ]
-    return filtered_dataset
-
-
 def filter_airport_dataset(data, airports=None, states=None, start_date=None, end_date=None):
     """
-    Filters dataset based on the specified filters.
+    Filters airport dataset based on a list of airports and 
+    start and end date of the period.
     """
     filtered_dataset = filter_dataset_by_date(
         data, start_date, end_date
@@ -200,7 +185,6 @@ def get_top_ten_aircraft_operators(data):
     return ao_flight_data.head(10)
 
 
-
 def get_area_centers_data(data, fields):
     """
     Return a dataframe with a list of area centers corresponding
@@ -231,6 +215,7 @@ def get_flight_column(ifr_movements):
     else:
         return c.NM_TOTAL_FLIGHTS
 
+
 def get_flight_columns(ifr_movements):
     """
     Based on the selected IFR movement returns a string with
@@ -256,7 +241,6 @@ def has_airport_data(data):
         return True
     else:
         return False
-
 
 
 def get_number_of_flights(data, flight_columns):
@@ -365,36 +349,6 @@ def get_average_per_month(data, flight_columns):
     return pivot
 
 
-def get_list_of_states(data):
-    """
-    Returns a list of states from the dataset
-    """
-    return data[c.STATE_NAME].unique()
-
-
-def get_list_of_airports(data):
-    """
-    Returns a list of states from the dataset
-    """
-    return data[c.AIRPORT_NAME].unique()
-
-
-def get_iso_code(row, field):
-    if pycountry.countries.get(name=row[field]):
-        return pycountry.countries.get(name=row[field]).alpha_3
-    elif row[field] == 'Bosnia-Herzegovina':
-        return 'BIH'
-    elif row[field] == 'Czech Republic':
-        return 'CZE'
-    elif row[field] == 'Moldova':
-        return 'MDA'
-    elif row[field] == 'Serbia & Montenegro':
-        return 'SRB'
-    elif row[field] == 'Republic of North Macedonia':
-        return 'MKD'
-    else:
-        return 'N/A'
-
 def get_unique_values(data, field):
     """
     Returns a list of unique values of a field from the dataset
@@ -434,6 +388,28 @@ def get_traffic_variations(data):
     return traffic_variations
 
 
+# ----- Definitions for functions to be used to create columns --- #
+
+
+def get_iso_code(row, field):
+    """
+    Function to be used to create ISO code based on 
+    state name
+    """
+    if pycountry.countries.get(name=row[field]):
+      return pycountry.countries.get(name=row[field]).alpha_3
+    elif row[field] == 'Bosnia-Herzegovina':
+      return 'BIH'
+    elif row[field] == 'Czech Republic':
+      return 'CZE'
+    elif row[field] == 'Moldova':
+      return 'MDA'
+    elif row[field] == 'Serbia & Montenegro':
+      return 'SRB'
+    elif row[field] == 'Republic of North Macedonia':
+      return 'MKD'
+    else:
+      return 'N/A'
 
 # ---- Upload of additional dataset to get airport coordinates ----- #
 
