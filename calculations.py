@@ -391,6 +391,24 @@ def get_traffic_variations(data):
 # ----- Definitions for functions to be used to create columns --- #
 
 
+def get_marker_size(row, field):
+    initial_size = 6
+    step = 4
+    if row[field] < 100:
+        return initial_size
+    elif row[field] < 300 and row[field] >= 100:
+        return initial_size + step
+    elif row[field] < 500 and row[field] >= 300:
+        return initial_size + 2*step
+    elif row[field] < 700 and row[field] >=500:
+        return initial_size + 3*step
+    elif row[field] < 900 and row[field] >= 700:
+        return initial_size + 4*step
+    elif row[field] < 1100 and row[field] >= 900:
+        return initial_size + 5*step
+    else:
+        return initial_size + 6*step
+
 def get_iso_code(row, field):
     """
     Function to be used to create ISO code based on 

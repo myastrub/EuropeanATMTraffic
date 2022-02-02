@@ -996,14 +996,17 @@ def update_airport_map(list_of_states, list_of_airports, start_date, end_date, i
     flight_column = calculations.get_flight_column(ifr)
 
     figure_data = calculations.get_daily_average_per_airport(filtered_data, flight_column)
-    unfiltered_data = calculations.get_daily_average_per_airport(airports, flight_column)
-    sizes = figure_data[flight_column] / 30
+    # unfiltered_data = calculations.get_daily_average_per_airport(airports, flight_column)
+    figure_data['Marker Size'] = figure_data.apply(
+        lambda x: calculations.get_marker_size(x, flight_column),
+        axis=1
+    )
     traces = [
         go.Choropleth(
             geojson=countries,
-            locations=unfiltered_data[c.ISO],
+            locations=figure_data[c.ISO],
             featureidkey="properties.ISO3",
-            z=[0]*len(unfiltered_data[flight_column]),
+            z=[0]*len(figure_data[flight_column]),
             hoverinfo='skip',
             showscale=False
             # hovertemplate='<extra></extra>'
@@ -1015,7 +1018,7 @@ def update_airport_map(list_of_states, list_of_airports, start_date, end_date, i
             customdata=figure_data[flight_column],
             marker=dict(
               color='orange',
-              size=sizes
+              size=figure_data['Marker Size']
               
             ),
             hovertemplate='%{text} - %{customdata:.1f} flights<extra></extra>'
