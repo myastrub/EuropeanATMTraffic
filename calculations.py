@@ -1,7 +1,6 @@
 import pandas as pd
 import numpy as np
 import constants as c
-import pycountry
 
 # ----- Filtering functions ------- #
 
@@ -409,25 +408,6 @@ def get_marker_size(row, field):
     else:
         return initial_size + 6*step
 
-def get_iso_code(row, field):
-    """
-    Function to be used to create ISO code based on 
-    state name
-    """
-    if pycountry.countries.get(name=row[field]):
-      return pycountry.countries.get(name=row[field]).alpha_3
-    elif row[field] == 'Bosnia-Herzegovina':
-      return 'BIH'
-    elif row[field] == 'Czech Republic':
-      return 'CZE'
-    elif row[field] == 'Moldova':
-      return 'MDA'
-    elif row[field] == 'Serbia & Montenegro':
-      return 'SRB'
-    elif row[field] == 'Republic of North Macedonia':
-      return 'MKD'
-    else:
-      return 'N/A'
 
 # ---- Upload of additional dataset to get airport coordinates ----- #
 

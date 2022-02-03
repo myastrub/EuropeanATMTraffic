@@ -1,13 +1,18 @@
 import pandas as pd
+import numpy as np
 import constants as c
 import datetime
 import calculations
+
 
 def get_combined_datasets(dataset_name, cutoff_date):
     datasets = []
     years = ['2020', '2021', '2022']
     for year in years:
-        dataset = pd.read_csv('datasets/{}-{}.csv'.format(year, dataset_name), delimiter=';')
+        dataset = pd.read_csv(
+            'datasets/{}-{}.csv'.format(year, dataset_name),
+            delimiter=';'
+        )
         dataset[c.DAY] = pd.to_datetime(dataset[c.DAY], format='%Y-%m-%d')
         dataset[c.MA] = dataset[c.MA].str.replace(',', '.')
         dataset[c.MA] = dataset[c.MA].astype(float)
@@ -22,7 +27,9 @@ def get_combined_datasets(dataset_name, cutoff_date):
     return pd.concat(datasets)
 
 # Upload of the ACC data
+
 area_centers = get_combined_datasets('ACCs', datetime.datetime(2021, 12, 24))
+
 
 area_centers = area_centers.rename(
     columns={
@@ -45,9 +52,22 @@ states[c.ISO] = states.apply(lambda x: calculations.get_iso_code(x, c.ENTITY), a
 
 # Upload of airport data
 
-airports = pd.read_csv('datasets/Airport_Traffic.csv', delimiter=';')
+iso_codes = pd.read_csv('datasets/iso_codes.csv', delimiter=';')
+
+airports = pd.read_csv(
+    'datasets/Airport_traffic.csv', delimiter=';'
+)
+
 airports[c.DATE] = pd.to_datetime(airports[c.DATE], format='%d/%m/%Y')
-airports[c.ISO] = airports.apply(lambda x: calculations.get_iso_code(x, c.STATE_NAME), axis=1)
+
+airports = airports.set_index(c.STATE_NAME).join(
+    iso_codes.set_index(c.STATE_NAME),
+    on=c.STATE_NAME,
+    how='left'
+)
+airports = airports.reset_index()
+
+
 
 # upload of airport_operator data
 
@@ -80,3 +100,4 @@ aircraft_operators[c.ENTITY] = aircraft_operators[c.ENTITY].str.replace(
 aircraft_operators[c.ENTITY] = aircraft_operators[c.ENTITY].str.replace(
     'Aegean Airlines', 'AEGEAN Group', regex=True
 )
+
