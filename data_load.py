@@ -59,8 +59,9 @@ states = states.set_index(c.ENTITY).join(
 states = states.reset_index()
 
 # Upload of airport data
-
-airports = pd.read_csv('datasets/Airport_traffic.csv', delimiter=';')
+GIT_HUB_URL = "https://github.com/myastrub/EuropeanATMTraffic/blob/main/datasets/Airport_Traffic.csv"
+airports = pd.read_csv(GIT_HUB_URL, delimiter=';')
+# airports = pd.read_csv('datasets/Airport_traffic.csv', delimiter=';')
 
 airports[c.DATE] = pd.to_datetime(airports[c.DATE], format='%d/%m/%Y')
 
