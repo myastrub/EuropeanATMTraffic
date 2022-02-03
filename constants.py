@@ -15,6 +15,7 @@ NM_MA = 'NM Moving Average'
 APT_MA = 'Airport Moving Average'
 
 ISO = 'ISO Code'
+ISO_3_PATH = 'properties.iso_a3'
 
 YEAR = 'YEAR'
 SEASON = 'Season'

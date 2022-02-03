@@ -399,7 +399,7 @@ def get_marker_size(row, field):
         return initial_size + step
     elif row[field] < 500 and row[field] >= 300:
         return initial_size + 2*step
-    elif row[field] < 700 and row[field] >=500:
+    elif row[field] < 700 and row[field] >= 500:
         return initial_size + 3*step
     elif row[field] < 900 and row[field] >= 700:
         return initial_size + 4*step

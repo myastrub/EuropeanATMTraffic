@@ -1,10 +1,8 @@
-import pandas as pd
 import dash
 import dash_bootstrap_components as dbc
 from dash import html, dcc
 from dash.dependencies import Input, Output, State
 import plotly.graph_objects as go
-import plotly.express as px
 from data_load import states, airports, area_centers, aircraft_operators
 import calculations
 import constants as c
@@ -21,8 +19,6 @@ app = dash.Dash(
         {"name": "viewport", "content": "width=device-width, initial-scale=1"},
     ]
 )
-
-ISO_3 = 'properties.iso_a3'
 
 with open('assets/custom_map.json') as file:
     countries = json.load(file)
@@ -51,7 +47,6 @@ sidebar_header = dbc.Row(
                     # the navbar-toggler classes don't set color
                     style={
                         "color": "rgba(0,0,0,.5)",
-                    #    "border-color": "rgba(0,0,0,.1)",
                         "border": None
                     },
                     id="navbar-toggle",
@@ -63,7 +58,6 @@ sidebar_header = dbc.Row(
                     # the navbar-toggler classes don't set color
                     style={
                         "color": "rgba(0,0,0,.5)",
-                    #    "border-color": "rgba(0,0,0,.1)",
                         "border": None
                     },
                     id="sidebar-toggle",
@@ -799,7 +793,7 @@ def update_states_map(start_date, end_date):
             locations=figure_data[c.ISO],
             text=figure_data[c.ENTITY],
             z=figure_data[c.FLIGHTS],
-            featureidkey=ISO_3,
+            featureidkey=c.ISO_3_PATH,
             colorscale="Viridis",
             zmin=0,
             zmax=max(figure_data[c.FLIGHTS]),
@@ -882,7 +876,6 @@ def update_acc_per_state_chart(list_of_states, acc_centers, start_date, end_date
         [c.FLIGHTS, c.FLIGHTS_2019]
     )
     
-
     fig = go.Figure()
 
     fig.add_trace(
@@ -969,6 +962,7 @@ def update_state_traffic_bar_chart(list_of_states, start_date, end_date):
         legend=c.HORIZONTAL_LEGEND,
     )
     return fig
+
 
 @app.callback(
     Output('airport_map', 'figure'),
@@ -1086,7 +1080,6 @@ def update_seasonal_variability_chart(list_of_states, list_of_airports, start_da
 
     figure_data = calculations.get_average_per_month(filtered_dataset, flight_columns)
 
-
     fig = go.Figure()
 
     fig.add_trace(
@@ -1183,9 +1176,8 @@ def update_top_10_ao_chart(start_date, end_date):
             x=figure_data[c.FLIGHTS],
             y=figure_data[c.ENTITY],
             orientation='h',
-            textposition = "inside",
-            # texttemplate = "%{y} - %{x:.1f}"
-            texttemplate = "%{y}"
+            textposition="inside",
+            texttemplate="%{y}"
         )
     )
 

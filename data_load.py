@@ -2,7 +2,6 @@ import pandas as pd
 import numpy as np
 import constants as c
 import datetime
-import calculations
 
 
 def get_combined_datasets(dataset_name, cutoff_date):
@@ -23,7 +22,6 @@ def get_combined_datasets(dataset_name, cutoff_date):
                 )
             ]
         datasets.append(dataset)
-    
     return pd.concat(datasets)
 
 # Upload of the iso codes dataset
@@ -82,7 +80,7 @@ airports = pd.read_csv(
          c.DATE, c.AIRPORT_CODE, c.AIRPORT_NAME,
          c.STATE_NAME, c.NM_DEP_FLIGHTS, c.NM_ARR_FLIGHTS,
          c.NM_TOTAL_FLIGHTS, c.AIRPORT_DEP_FLIGHTS,
-         c.AIRPORT_ARR_FLIGHTS, c.AIRPORT_TOTAL_FLIGHTS   
+         c.AIRPORT_ARR_FLIGHTS, c.AIRPORT_TOTAL_FLIGHTS
     ],
     dtype={
         c.YEAR: np.int32,
@@ -104,8 +102,6 @@ airports = airports.set_index(c.STATE_NAME).join(
     how='left'
 )
 airports = airports.reset_index()
-
-
 
 # upload of airport_operator data
 
@@ -138,4 +134,3 @@ aircraft_operators[c.ENTITY] = aircraft_operators[c.ENTITY].str.replace(
 aircraft_operators[c.ENTITY] = aircraft_operators[c.ENTITY].str.replace(
     'Aegean Airlines', 'AEGEAN Group', regex=True
 )
-
