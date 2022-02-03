@@ -3,6 +3,13 @@ import numpy as np
 import constants as c
 import datetime
 import calculations
+import os
+
+
+DIR_NAME = os.path.dirname(os.path.dirname(os.path.abspath('datasets')))
+DATASETS = 'datasets'
+AIRPORT_CSV_PATH = os.path.join(DIR_NAME, DATASETS, 'Airport_traffic.csv')
+
 
 
 def get_combined_datasets(dataset_name, cutoff_date):
@@ -59,9 +66,8 @@ states = states.set_index(c.ENTITY).join(
 states = states.reset_index()
 
 # Upload of airport data
-GIT_HUB_URL = "https://github.com/myastrub/EuropeanATMTraffic/blob/main/datasets/Airport_Traffic.csv"
-airports = pd.read_csv(GIT_HUB_URL, delimiter=';')
-# airports = pd.read_csv('datasets/Airport_traffic.csv', delimiter=';')
+
+airports = pd.read_csv(AIRPORT_CSV_PATH, delimiter=';')
 
 airports[c.DATE] = pd.to_datetime(airports[c.DATE], format='%d/%m/%Y')
 
