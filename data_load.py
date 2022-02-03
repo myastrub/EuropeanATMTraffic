@@ -60,7 +60,27 @@ states = states.reset_index()
 
 # Upload of airport data
 
-airports = pd.read_csv('datasets/Airport_Traffic.csv', delimiter=';')
+airports = pd.read_csv(
+    'datasets/Airport_Traffic.csv',
+    delimiter=';',
+    usecols=[
+         c.YEAR, c.MONTH_NUM, c.MONTH_MON,
+         c.DATE, c.AIRPORT_CODE, c.AIRPORT_NAME,
+         c.STATE_NAME, c.NM_DEP_FLIGHTS, c.NM_ARR_FLIGHTS,
+         c.NM_TOTAL_FLIGHTS, c.AIRPORT_DEP_FLIGHTS,
+         c.AIRPORT_ARR_FLIGHTS, c.AIRPORT_TOTAL_FLIGHTS   
+    ],
+    dtype={
+        c.YEAR: np.int32,
+        c.MONTH_NUM: np.int32,
+        c.NM_DEP_FLIGHTS: np.float32,
+        c.NM_ARR_FLIGHTS: np.float32,
+        c.NM_TOTAL_FLIGHTS: np.float32,
+        c.AIRPORT_TOTAL_FLIGHTS: np.float32,
+        c.AIRPORT_ARR_FLIGHTS: np.float32,
+        c.AIRPORT_DEP_FLIGHTS: np.float32,
+    }
+)
 
 airports[c.DATE] = pd.to_datetime(airports[c.DATE], format='%d/%m/%Y')
 
