@@ -26,6 +26,9 @@ def get_combined_datasets(dataset_name, cutoff_date):
     
     return pd.concat(datasets)
 
+# Upload of the iso codes dataset
+iso_codes = pd.read_csv('datasets/iso_codes.csv', delimiter=';')
+
 # Upload of the ACC data
 
 area_centers = get_combined_datasets('ACCs', datetime.datetime(2021, 12, 24))
@@ -48,11 +51,15 @@ states = states.rename(
     }
 )
 
-states[c.ISO] = states.apply(lambda x: calculations.get_iso_code(x, c.ENTITY), axis=1)
+states = states.set_index(c.ENTITY).join(
+    iso_codes.set_index(c.STATE_NAME),
+    on=c.ENTITY,
+    how='left'
+)
 
 # Upload of airport data
 
-iso_codes = pd.read_csv('datasets/iso_codes.csv', delimiter=';')
+
 
 airports = pd.read_csv(
     'datasets/Airport_traffic.csv', delimiter=';'
