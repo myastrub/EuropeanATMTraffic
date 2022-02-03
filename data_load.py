@@ -3,13 +3,6 @@ import numpy as np
 import constants as c
 import datetime
 import calculations
-import os
-
-
-DIR_NAME = os.path.dirname(os.path.dirname(os.path.abspath('datasets')))
-DATASETS = 'datasets'
-AIRPORT_CSV_PATH = os.path.join(DIR_NAME, DATASETS, 'Airport_traffic.csv')
-
 
 
 def get_combined_datasets(dataset_name, cutoff_date):
@@ -17,7 +10,7 @@ def get_combined_datasets(dataset_name, cutoff_date):
     years = ['2020', '2021', '2022']
     for year in years:
         dataset = pd.read_csv(
-            'datasets/{}-{}.csv'.format(year, dataset_name),
+            '{}-{}.csv'.format(year, dataset_name),
             delimiter=';'
         )
         dataset[c.DAY] = pd.to_datetime(dataset[c.DAY], format='%Y-%m-%d')
@@ -34,7 +27,7 @@ def get_combined_datasets(dataset_name, cutoff_date):
     return pd.concat(datasets)
 
 # Upload of the iso codes dataset
-iso_codes = pd.read_csv('datasets/iso_codes.csv', delimiter=';')
+iso_codes = pd.read_csv('iso_codes.csv', delimiter=';')
 
 # Upload of the ACC data
 
@@ -67,7 +60,7 @@ states = states.reset_index()
 
 # Upload of airport data
 
-airports = pd.read_csv(AIRPORT_CSV_PATH, delimiter=';')
+airports = pd.read_csv('Airport_traffic.csv', delimiter=';')
 
 airports[c.DATE] = pd.to_datetime(airports[c.DATE], format='%d/%m/%Y')
 
