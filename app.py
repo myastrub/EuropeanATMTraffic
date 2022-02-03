@@ -192,6 +192,7 @@ state_traffic_tab = dcc.Tab(
     label='State View',
     id='state_traffic_tab',
     value='state_traffic_tab',
+    className='custom_tab',
     children=[
         dbc.Container([
             dbc.Row([
@@ -255,6 +256,7 @@ airport_traffic_tab = dcc.Tab(
     label='Airport View',
     id='airport_traffic_tab',
     value='airport_traffic_tab',
+    className='custom_tab',
     children=[
         dbc.Container([
             dbc.Row([
@@ -321,6 +323,7 @@ aircraft_operator_traffic_tab = dcc.Tab(
     label='Aircraft Operator View',
     id='aircraft_operator_tab',
     value='aircraft_operator_tab',
+    className='custom_tab',
     children=[
         dbc.Container([
             dbc.Row([
@@ -391,7 +394,8 @@ tabs = html.Div([
         aircraft_operator_traffic_tab
       ],
     id='content_tabs',
-    value='state_traffic_tab'
+    value='state_traffic_tab',
+    mobile_breakpoint=0
   )  
 ])
 
@@ -410,10 +414,6 @@ header = dbc.Container(
     },
     id="header_big"
 )
-
-# TODO: rewrite the footer.
-# TODO: add donut/cirle charts to AO tab with market share of airlines
-# one chart with current level (2020-2022), one chart with 2019
 
 footer = html.Footer(
     html.Div(

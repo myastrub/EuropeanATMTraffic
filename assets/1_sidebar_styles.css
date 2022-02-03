@@ -1,18 +1,23 @@
-#sidebar {
+  #sidebar {
+      text-align: center;
+      padding: 2rem 1rem;
+      background-color: #f8f9fa;
+    }
+    
+  #sidebar h2 {
     text-align: center;
-    padding: 2rem 1rem;
-    background-color: #f8f9fa;
+    margin-bottom: 0;
+    margin-left: 20%;
   }
-  
-#sidebar h2 {
-  text-align: center;
-  margin-bottom: 0;
-  margin-left: 20%;
-}
-  
-.section_title {
-  text-align: center;
-}
+    
+  .section_title {
+    text-align: center;
+    margin-top: 1.5rem;
+  }
+
+  .custom_tab {
+    font-size: 90%;
+  }
 
   /* Hide the blurb on a small screen */
   #blurb {
@@ -68,6 +73,9 @@
       /* transition: margin 0.3s ease-in-out, padding 0.3s ease-in-out; */
     }
   
+    .custom_tab {
+      font-size: 100%;
+    }
     .DateInput_input {
         text-align: left;
     }
