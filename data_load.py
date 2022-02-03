@@ -50,7 +50,21 @@ states = states.rename(
         c.DAY: c.DATE
     }
 )
-
+states[c.ENTITY] = states[c.ENTITY].str.replace(
+    'Bosnia-Herzegovina',
+    'Bosnia and Herzegovina',
+    regex=False
+)
+states[c.ENTITY] = states[c.ENTITY].str.replace(
+    'Serbia & Montenegro',
+    'Serbia',
+    regex=False
+)
+states[c.ENTITY] = states[c.ENTITY].str.replace(
+    'North Macedonia',
+    'Republic of North Macedonia',
+    regex=False
+)
 states = states.set_index(c.ENTITY).join(
     iso_codes.set_index(c.STATE_NAME),
     on=c.ENTITY,

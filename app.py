@@ -22,11 +22,9 @@ app = dash.Dash(
     ]
 )
 
-# ISO_3 = 'properties.ISO3'
 ISO_3 = 'properties.iso_a3'
 
 with open('assets/custom_map.json') as file:
-#with open('assets/europe.geojson') as file:
     countries = json.load(file)
 
 app.title = 'European Air Traffic Dashboard'
@@ -793,30 +791,28 @@ def update_states_map(start_date, end_date):
         filtered_data[c.ENTITY].ne(c.TOT_NETWORK_AREA)
     ]
 
-    figure_data = calculations.get_states_flight_data(filtered_data, c.ISO)
-
-    fig = go.Figure()
-    fig.add_trace(
-        go.Choropleth(
+    figure_data = calculations.get_states_flight_data(filtered_data, [c.ISO, c.ENTITY])
+    
+    fig = go.Figure(
+        go.Choroplethmapbox(
             geojson=countries,
             locations=figure_data[c.ISO],
+            text=figure_data[c.ENTITY],
             z=figure_data[c.FLIGHTS],
             featureidkey=ISO_3,
-            zmin = 0,
-            zmax=max(figure_data[c.FLIGHTS])
+            colorscale="Viridis",
+            zmin=0,
+            zmax=max(figure_data[c.FLIGHTS]),
+            hovertemplate='%{text} - %{z:.1f} flights<extra></extra>'
         )
     )
-
-    fig.update_geos(
-        # fitbounds="locations", 
-        visible=False,
-        lataxis_range=[10, 80],
-        lonaxis_range=[-30, 60]
-    )
+   
     fig.update_layout(
-        margin={"r": 0, "t": 20, "l": 10, "b": 10}
+        margin={"r": 0, "t": 20, "l": 10, "b": 10},
+        mapbox_style="carto-positron",
+        mapbox_zoom=2,
+        mapbox_center = {"lat": 53, "lon": 10}
     )
-    
     return fig
 
 
@@ -1000,41 +996,26 @@ def update_airport_map(list_of_states, list_of_airports, start_date, end_date, i
         lambda x: calculations.get_marker_size(x, flight_column),
         axis=1
     )
-    traces = [
-        go.Choropleth(
-            geojson=countries,
-            locations=unfiltered_data[c.ISO],
-            featureidkey=ISO_3,
-            z=[0]*len(unfiltered_data[flight_column]),
-            hoverinfo='skip',
-            showscale=False
-            # hovertemplate='<extra></extra>'
-        ),
-        go.Scattergeo(
-            lon=figure_data['LONG'],
+    
+    fig = go.Figure(
+        go.Scattermapbox(
             lat=figure_data['LAT'],
+            lon=figure_data['LONG'],
+            marker=go.scattermapbox.Marker(
+                size=figure_data['Marker Size']
+            ),
+            mode='markers',
             text=figure_data[c.AIRPORT_NAME],
             customdata=figure_data[flight_column],
-            marker=dict(
-              color='orange',
-              size=figure_data['Marker Size']
-              
-            ),
             hovertemplate='%{text} - %{customdata:.1f} flights<extra></extra>'
         )
-       
-    ]
-    fig = go.Figure(data=traces)
-
-    fig.update_geos(
-         # fitbounds="locations", 
-        visible=False,
-        lataxis_range=[10, 80],
-        lonaxis_range=[-30, 60]
     )
-
+    
     fig.update_layout(
-        margin={"r": 0, "t": 20, "l": 10, "b": 10}
+        margin={"r": 0, "t": 20, "l": 10, "b": 10},
+        mapbox_style="carto-positron",
+        mapbox_zoom=2,
+        mapbox_center = {"lat": 53, "lon": 10}
     )
     
     return fig
