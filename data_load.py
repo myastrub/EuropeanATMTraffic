@@ -56,10 +56,9 @@ states = states.set_index(c.ENTITY).join(
     on=c.ENTITY,
     how='left'
 )
+states = states.reset_index()
 
 # Upload of airport data
-
-
 
 airports = pd.read_csv(
     'datasets/Airport_traffic.csv', delimiter=';'
