@@ -10,7 +10,7 @@ def get_combined_datasets(dataset_name, cutoff_date):
     years = ['2020', '2021', '2022']
     for year in years:
         dataset = pd.read_csv(
-            '{}-{}.csv'.format(year, dataset_name),
+            'datasets/{}-{}.csv'.format(year, dataset_name),
             delimiter=';'
         )
         dataset[c.DAY] = pd.to_datetime(dataset[c.DAY], format='%Y-%m-%d')
@@ -27,7 +27,7 @@ def get_combined_datasets(dataset_name, cutoff_date):
     return pd.concat(datasets)
 
 # Upload of the iso codes dataset
-iso_codes = pd.read_csv('iso_codes.csv', delimiter=';')
+iso_codes = pd.read_csv('datasets/iso_codes.csv', delimiter=';')
 
 # Upload of the ACC data
 
@@ -60,7 +60,7 @@ states = states.reset_index()
 
 # Upload of airport data
 
-airports = pd.read_csv('Airport_Traffic.csv', delimiter=';')
+airports = pd.read_csv('datasets/Airport_Traffic.csv', delimiter=';')
 
 airports[c.DATE] = pd.to_datetime(airports[c.DATE], format='%d/%m/%Y')
 
