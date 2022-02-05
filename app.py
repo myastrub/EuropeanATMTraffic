@@ -1038,7 +1038,8 @@ def update_traffic_per_year_chart(list_of_states, list_of_airports, ifr):
         go.Bar(
             x=figure_data[c.YEAR],
             y=figure_data[flight_columns[0]],
-            name='Number of flights (recorded by NM)'
+            name='Number of flights (recorded by NM)',
+            hovertemplate='%{y:.1f} flights in %{x}<extra></extra>',
         )
     )
 
@@ -1047,7 +1048,8 @@ def update_traffic_per_year_chart(list_of_states, list_of_airports, ifr):
             go.Bar(
                 x=figure_data[c.YEAR],
                 y=figure_data[flight_columns[1]],
-                name='Number of flights (recorded by airport)'
+                name='Number of flights (recorded by airport)',
+                hovertemplate='%{y:.1f} flights in %{x}<extra></extra>',
             )
         )
     
