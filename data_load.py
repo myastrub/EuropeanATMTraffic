@@ -13,6 +13,7 @@ def get_combined_datasets(dataset_name, cutoff_date):
             delimiter=';'
         )
         dataset[c.DAY] = pd.to_datetime(dataset[c.DAY], format='%Y-%m-%d')
+        dataset[c.DATE_2019] = pd.to_datetime(dataset[c.DATE_2019], format='%Y-%m-%d')
         dataset[c.MA] = dataset[c.MA].str.replace(',', '.')
         dataset[c.MA] = dataset[c.MA].astype(float)
         if year == '2022':
@@ -133,4 +134,18 @@ aircraft_operators[c.ENTITY] = aircraft_operators[c.ENTITY].str.replace(
 )
 aircraft_operators[c.ENTITY] = aircraft_operators[c.ENTITY].str.replace(
     'Aegean Airlines', 'AEGEAN Group', regex=True
+)
+
+aircraft_operators_2021 = aircraft_operators[
+    aircraft_operators[c.DATE].dt.year.eq(2021)
+]
+aircraft_operators_2019 = aircraft_operators_2021[[c.ENTITY, c.DATE_2019, c.FLIGHTS_2019]]
+aircraft_operators_2019 = aircraft_operators_2019[
+    aircraft_operators_2019[c.DATE_2019].dt.year.eq(2019)
+]
+aircraft_operators_2019 = aircraft_operators_2019.rename(
+    columns={
+        c.DATE_2019: c.DATE,
+        c.FLIGHTS_2019: c.FLIGHTS
+    }
 )

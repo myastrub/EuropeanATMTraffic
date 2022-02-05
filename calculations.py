@@ -387,6 +387,13 @@ def get_traffic_variations(data):
     return traffic_variations
 
 
+def merge_datasets(datasets):
+    """
+    Returns concatenated datasets
+    """
+    return pd.concat(datasets)
+
+
 # ----- Definitions for functions to be used to create columns --- #
 
 
@@ -409,6 +416,14 @@ def get_marker_size(row, field):
         return initial_size + 6*step
 
 
+def get_month_name(row):
+    """
+    Returns first three letters of the month name
+    """
+    month_name = row[c.DATE].month_name()
+    return month_name.upper()[:3]
+
+
 # ---- Upload of additional dataset to get airport coordinates ----- #
 
 airport_coordinates = pd.read_csv(
@@ -417,3 +432,4 @@ airport_coordinates = pd.read_csv(
     decimal=','
 )
 airport_coordinates = airport_coordinates.drop(labels=c.AIRPORT_NAME, axis=1)
+

@@ -3,7 +3,7 @@ import dash_bootstrap_components as dbc
 from dash import html, dcc
 from dash.dependencies import Input, Output, State
 import plotly.graph_objects as go
-from data_load import states, airports, area_centers, aircraft_operators
+from data_load import states, airports, area_centers, aircraft_operators, aircraft_operators_2019
 import calculations
 import constants as c
 
@@ -364,20 +364,20 @@ aircraft_operator_traffic_tab = dcc.Tab(
                 dbc.Col(
                     html.Div([
                         html.H5(
-                            "Aircraft Operators Marketshare in 2019",
+                            "Seasonal Variability of Aircraft Operator Traffic",
                             className='section_title'
                         ),
-                        dcc.Graph(id='marketshare_2019')
+                        dcc.Graph(id='aircraft_operator_seasonal_variability')
                     ]),
                     xs=12, md=12, lg=6, xl=6
                 ),
                 dbc.Col(
                     html.Div([
                         html.H5(
-                            "Aircraft Operators Marketshare after 2019",
+                            "Aircraft Operators Traffic Levels per Year",
                             className='section_title'
                         ),
-                        dcc.Graph(id='marketshare_now')
+                        dcc.Graph(id='aircraft_operator_traffic_per_year')
                     ]),
                     xs=12, md=12, lg=6, xl=6
                 )
@@ -1083,26 +1083,28 @@ def update_seasonal_variability_chart(list_of_states, list_of_airports, start_da
     fig = go.Figure()
 
     fig.add_trace(
-        go.Scatter(
+        go.Bar(
             x=figure_data[c.MONTH_MON],
             y=figure_data[flight_columns[0]],
-            mode='lines+markers',
-            name='Number of flights (recorded by NM)'
+            name='Number of flights (recorded by NM)',
+            hovertemplate='%{y:.1f} flights in %{x}<extra></extra>',
+            marker_color=c.BLUE
         )
     )
     if calculations.has_airport_data(figure_data):
         fig.add_trace(
-            go.Scatter(
+            go.Bar(
                 x=figure_data[c.MONTH_MON],
                 y=figure_data[flight_columns[1]],
-                mode='lines+markers',
-                name='Number of flights (recorded by airport)'
+                name='Number of flights (recorded by airport)',
+                hovertemplate='%{y:.1f} flights in %{x}<extra></extra>',
+                marker_color=c.RED,
             )
         )
 
     fig.update_layout(
         legend=c.HORIZONTAL_LEGEND,
-        margin=c.GRAPH_MARGIN
+        margin=c.GRAPH_MARGIN,
     )
 
     return fig
@@ -1220,7 +1222,8 @@ def update_ao_bar_chart(list_of_operators, start_date, end_date):
             x=figure_data[c.ENTITY],
             base=0,
             name='Number of daily flights (2019)',
-            marker_color=c.RED
+            marker_color=c.RED,
+            hovertemplate='%{y:.1f} flights of %{x}<extra></extra>',
         )
     )
 
@@ -1230,7 +1233,8 @@ def update_ao_bar_chart(list_of_operators, start_date, end_date):
             x=figure_data[c.ENTITY],
             base=0,
             name='Number of daily flights',
-            marker_color=c.BLUE
+            marker_color=c.BLUE,
+            hovertemplate='%{y:.1f} flights of %{x}<extra></extra>',
         )
     )
 
@@ -1247,67 +1251,104 @@ def update_ao_bar_chart(list_of_operators, start_date, end_date):
 
 
 @app.callback(
-    Output('marketshare_2019', 'figure'),
+    Output('aircraft_operator_seasonal_variability', 'figure'),
+    Input('aircraft_operator_list', 'value'),
     Input('start_date_picker', 'date'),
     Input('end_date_picker', 'date')
 )
-def update_marketshare_2019_chart(start_date, end_date):
+def update_aircraft_operator_seasonal_variability_chart(list_of_operators, start_date, end_date):
 
     filtered_data = calculations.filter_aircraft_operators(
         data=aircraft_operators,
+        operators=list_of_operators,
         start_date=start_date,
         end_date=end_date
     )
 
-    figure_data = calculations.get_states_flight_data(
-        filtered_data, c.ENTITY
+    filtered_data[c.MONTH_MON] = filtered_data.apply(lambda x: calculations.get_month_name(x), axis=1)
+    filtered_data[c.MONTH_NUM] = filtered_data[c.DATE].dt.month
+    
+    figure_data = calculations.get_average_per_month(
+        filtered_data, [c.FLIGHTS_2019, c.FLIGHTS]
     )
 
     fig = go.Figure()
 
     fig.add_trace(
-        go.Pie(
-            labels=figure_data[c.ENTITY],
-            values=figure_data[c.FLIGHTS_2019]
+        go.Bar(
+            x=figure_data[c.MONTH_MON],
+            y=figure_data[c.FLIGHTS_2019],
+            name='Number of flights (2019)',
+            base=0,
+            hovertemplate='%{y:.1f} flights in %{x}<extra></extra>',
+            marker_color=c.RED,            
         )
     )
 
-    fig.update_traces(
-        hole=.5
+    fig.add_trace(
+        go.Bar(
+            x=figure_data[c.MONTH_MON],
+            y=figure_data[c.FLIGHTS],
+            name='Number of flights',
+            base=0,
+            hovertemplate='%{y:.1f} flights in %{x}<extra></extra>',
+            marker_color=c.BLUE,
+            
+        )
     )
 
     fig.update_layout(
-        margin=c.GRAPH_MARGIN
+        margin=c.GRAPH_MARGIN,
+        legend=c.HORIZONTAL_LEGEND,
+        barmode='stack'
     )
     return fig
 
 
 @app.callback(
-    Output('marketshare_now', 'figure'),
+    Output('aircraft_operator_traffic_per_year', 'figure'),
+    Input('aircraft_operator_list', 'value'),
     Input('start_date_picker', 'date'),
     Input('end_date_picker', 'date')
 )
-def update_marketshare_now_chart(start_date, end_date):
+def update_aircraft_operator_traffic_per_year_chart(list_of_operators, start_date, end_date):
 
     filtered_data = calculations.filter_aircraft_operators(
         data=aircraft_operators,
+        operators=list_of_operators,
         start_date=start_date,
         end_date=end_date
     )
-    figure_data = calculations.get_states_flight_data(
-        filtered_data, c.ENTITY
-    )
     
+    filtered_data_2019 = calculations.filter_aircraft_operators(
+        data=aircraft_operators_2019,
+        operators=list_of_operators
+    )
+
+    filtered_data[c.YEAR] = filtered_data[c.DATE].dt.year
+    filtered_data_2019[c.YEAR] = filtered_data_2019[c.DATE].dt.year
+    
+    figure_data = calculations.get_average_per_year(
+        filtered_data, c.FLIGHTS
+    )
+    figure_data_2019 = calculations.get_average_per_year(
+        filtered_data_2019, c.FLIGHTS
+    )
+
+    figure_data = calculations.merge_datasets([figure_data, figure_data_2019])
+    figure_data = figure_data.sort_values(by=c.YEAR)
+
     fig = go.Figure()
+    colors = [c.BLUE] * len(figure_data)
+    colors[0] = c.RED
 
     fig.add_trace(
-        go.Pie(
-            labels=figure_data[c.ENTITY],
-            values=figure_data[c.FLIGHTS]
+        go.Bar(
+            x=figure_data[c.YEAR],
+            y=figure_data[c.FLIGHTS],
+            marker_color = colors,
+            hovertemplate='%{y:.1f} flights in %{x}<extra></extra>',
         )
-    )
-    fig.update_traces(
-        hole=.5
     )
 
     fig.update_layout(
