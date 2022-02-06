@@ -15,3 +15,4 @@ The dashboard is deployed on Heroku:
 The 'Procfile' and 'runtime.txt' files are needed for Heroku deployment.
 
 ## Future developments
+ - instead of aggregating data for different charts give a user a possibility to choose: either sum up data or create separate traces for selected data.
