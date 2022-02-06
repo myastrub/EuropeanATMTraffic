@@ -1352,7 +1352,10 @@ def update_aircraft_operator_traffic_per_year_chart(list_of_operators, start_dat
             hovertemplate='%{y:.1f} flights in %{x}<extra></extra>',
         )
     )
-
+    fig.update_xaxes(
+        tickformat='d',
+        tickvals=figure_data[c.YEAR],
+        ticktext=figure_data[c.YEAR])
     fig.update_layout(
         margin=c.GRAPH_MARGIN
     )
